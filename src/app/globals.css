@@ -2,22 +2,29 @@
 
 /*
  * Product UI palette (SidelineSwap "forest-primary" design system).
- * Hex values are taken from the project brief. `pastel-green-500` (the
- * default border color) is an approximation — confirm the exact value
- * against SidelineSwap's real design-system tokens if this project is
- * ever wired into that package directly.
+ * Pulled directly from sidelineswap-event-campaign-tool-mockup.html's
+ * :root custom properties — this is the real source, not an
+ * approximation.
  */
 @theme {
   --color-turf-green-500: #253c32;
+  --color-turf-green-400: #3a614f;
+  --color-turf-green-100: #c3d7cb;
+  --color-turf-green-50: #e0ebe3;
   --color-slate-green-500: #61716a;
   --color-green-500: #02c874;
+  --color-green-100: #e6faf1;
+  --color-green-50: #f2fcf8;
+  --color-pastel-green-500: #cfdcd6;
   --color-red-500: #e84f4f;
-  --color-pastel-green-500: #d7e4de;
+  --color-red-100: #fdecec;
+  --color-offwhite: #f8fffc;
+  --color-canvas: #f4f7f5;
 }
 
 body {
   color: var(--color-turf-green-500);
-  background-color: #fafaf9;
+  background-color: var(--color-canvas);
 }
 
 /*
@@ -34,4 +41,3 @@ body {
     border-color: var(--color-pastel-green-500, currentColor);
   }
 }
-

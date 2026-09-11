@@ -21,6 +21,7 @@ export type Campaign = {
   event_state: string | null;
   event_dates: string;
   event_hours: string | null;
+  accepted_categories: string | null;
   bonus_code: string;
   status: CampaignStatus;
   sent_at: string | null;

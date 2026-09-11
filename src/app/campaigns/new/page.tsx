@@ -33,8 +33,7 @@ export default async function NewCampaignPage({
   const { data: contacts, count } = await query;
 
   return (
-    <AppShell userEmail={session.user!.email!}>
-      <h1 className="text-xl font-bold text-turf-green-500">New campaign</h1>
+    <AppShell userEmail={session.user!.email!} title="New campaign">
       <CreateCampaignForm
         contacts={contacts ?? []}
         totalMatches={count}

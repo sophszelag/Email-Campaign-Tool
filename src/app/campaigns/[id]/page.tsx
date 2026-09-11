@@ -4,6 +4,7 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getCampaignMetrics } from "@/lib/metrics";
 import { renderInviteEmail } from "@/lib/email/template";
 import AppShell from "@/components/AppShell";
+import StatusBadge from "@/components/StatusBadge";
 import PreviewPane, { type PreviewOption } from "@/app/campaigns/[id]/PreviewPane";
 import SendTestButton from "@/app/campaigns/[id]/SendTestButton";
 import SendCampaignButton from "@/app/campaigns/[id]/SendCampaignButton";
@@ -41,8 +42,10 @@ export default async function CampaignDetailPage({
     const rendered = renderInviteEmail(contact, {
       event_venue: campaign.event_venue,
       event_city: campaign.event_city,
+      event_state: campaign.event_state,
       event_dates: campaign.event_dates,
       event_hours: campaign.event_hours,
+      accepted_categories: campaign.accepted_categories,
       bonus_code: campaign.bonus_code,
     });
     return {
@@ -53,21 +56,15 @@ export default async function CampaignDetailPage({
   });
 
   return (
-    <AppShell userEmail={session.user!.email!}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-turf-green-500">{campaign.name}</h1>
-          <p className="text-sm text-slate-green-500">
-            {campaign.event_venue} · {campaign.event_city}
-            {campaign.event_state ? `, ${campaign.event_state}` : ""} · {campaign.event_dates}
-          </p>
-        </div>
-        <span className="rounded-full border px-3 py-1 text-xs font-medium capitalize text-turf-green-500">
-          {campaign.status}
-        </span>
-      </div>
-
-      <section className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-6">
+    <AppShell
+      userEmail={session.user!.email!}
+      title={campaign.name}
+      subtitle={`${campaign.event_venue} · ${campaign.event_city}${
+        campaign.event_state ? `, ${campaign.event_state}` : ""
+      } · ${campaign.event_dates}`}
+      actions={<StatusBadge status={campaign.status} />}
+    >
+      <section className="grid grid-cols-2 gap-4 sm:grid-cols-6">
         <Metric label="Sent" value={metrics.sent} />
         <Metric label="Delivered" value={metrics.delivered} />
         <Metric label="Opened" value={metrics.opened} />
@@ -76,15 +73,15 @@ export default async function CampaignDetailPage({
         <Metric label="Unsubscribed" value={metrics.unsubscribed} />
       </section>
 
-      <section className="mt-8 rounded-lg border bg-white">
+      <section className="mt-8 overflow-hidden rounded-[10px] border bg-white shadow-sm">
         <div className="border-b p-4">
-          <h2 className="text-sm font-semibold text-turf-green-500">Live preview</h2>
+          <h2 className="text-sm font-bold text-turf-green-500">Live preview</h2>
         </div>
         <PreviewPane options={previewOptions} />
       </section>
 
-      <section className="mt-8 flex flex-col gap-4 rounded-lg border bg-white p-6">
-        <h2 className="text-sm font-semibold text-turf-green-500">Send</h2>
+      <section className="mt-8 flex flex-col gap-4 rounded-[10px] border bg-white p-6 shadow-sm">
+        <h2 className="text-sm font-bold text-turf-green-500">Send</h2>
         <SendTestButton campaignId={campaign.id} />
         {campaign.status === "sent" ? (
           <p className="text-sm text-slate-green-500">This campaign has already been sent.</p>
@@ -98,8 +95,8 @@ export default async function CampaignDetailPage({
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border bg-white p-4 text-center">
-      <div className="text-2xl font-bold text-turf-green-500">{value}</div>
+    <div className="rounded-lg border bg-white p-4 text-center shadow-sm">
+      <div className="text-2xl font-black text-turf-green-500">{value}</div>
       <div className="text-xs text-slate-green-500">{label}</div>
     </div>
   );

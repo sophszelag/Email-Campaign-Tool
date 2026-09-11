@@ -30,9 +30,9 @@ export default function CreateCampaignForm({
   }, initialState);
 
   return (
-    <form action={formAction} className="mt-6 space-y-8">
-      <section className="rounded-lg border bg-white p-6">
-        <h2 className="text-sm font-semibold text-turf-green-500">Event details</h2>
+    <form action={formAction} className="space-y-8">
+      <section className="rounded-[10px] border bg-white p-6 shadow-sm">
+        <h2 className="text-sm font-bold text-turf-green-500">Event details</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Campaign name" name="name" placeholder="e.g. MonkeySports Woodbridge — Oct 2026" full />
           <Field label="Venue" name="event_venue" placeholder="e.g. MonkeySports" />
@@ -41,12 +41,19 @@ export default function CreateCampaignForm({
           <Field label="Dates" name="event_dates" placeholder="e.g. Oct 18–19, 2026" />
           <Field label="Hours" name="event_hours" placeholder="e.g. 10am–4pm" required={false} />
           <Field label="Bonus code" name="bonus_code" placeholder="e.g. WOODBRIDGE25" />
+          <Field
+            label="Accepted categories (optional)"
+            name="accepted_categories"
+            placeholder="e.g. Hockey, lacrosse, baseball, softball"
+            required={false}
+            full
+          />
         </div>
       </section>
 
-      <section className="rounded-lg border bg-white">
+      <section className="overflow-hidden rounded-[10px] border bg-white shadow-sm">
         <div className="border-b p-6">
-          <h2 className="text-sm font-semibold text-turf-green-500">Recipients</h2>
+          <h2 className="text-sm font-bold text-turf-green-500">Recipients</h2>
           <p className="mt-1 text-sm text-slate-green-500">
             Filter by city/state, then check who should get this campaign. Unsubscribed contacts are
             excluded automatically.
@@ -69,7 +76,7 @@ export default function CreateCampaignForm({
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-turf-green-500 px-5 py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+        className="rounded-md bg-turf-green-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-[#18201D] disabled:opacity-50"
       >
         {isPending ? "Creating…" : "Create campaign (draft)"}
       </button>

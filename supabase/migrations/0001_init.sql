@@ -30,6 +30,10 @@ create table if not exists campaigns (
   event_state text,
   event_dates text not null,
   event_hours text,
+  -- Free-text description of what's accepted (e.g. "Hockey, lacrosse,
+  -- baseball, softball") — shown in the invite email's "Bringing" row when
+  -- set. Optional since it varies per venue and isn't in every event.
+  accepted_categories text,
   bonus_code text not null,
   status text not null default 'draft' check (status in ('draft', 'sending', 'sent')),
   sent_at timestamptz,

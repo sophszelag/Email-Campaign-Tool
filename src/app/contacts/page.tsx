@@ -30,17 +30,14 @@ export default async function ContactsPage({
     .select("*", { count: "exact", head: true });
 
   return (
-    <AppShell userEmail={session.user!.email!}>
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-turf-green-500">Contacts</h1>
-        <span className="text-sm text-slate-green-500">{totalCount ?? 0} total</span>
-      </div>
+    <AppShell
+      userEmail={session.user!.email!}
+      title="Contacts"
+      subtitle={`${(totalCount ?? 0).toLocaleString()} past customers on file`}
+    >
+      <UploadForm />
 
-      <div className="mt-6">
-        <UploadForm />
-      </div>
-
-      <div className="mt-8 rounded-lg border bg-white">
+      <div className="mt-8 overflow-hidden rounded-[10px] border bg-white shadow-sm">
         <form className="flex flex-wrap items-end gap-3 border-b p-4">
           <div>
             <label className="block text-xs text-slate-green-500">City</label>
@@ -73,22 +70,22 @@ export default async function ContactsPage({
         {!error && (
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b text-slate-green-500">
-                <th className="px-4 py-2 font-medium">Name</th>
-                <th className="px-4 py-2 font-medium">Email</th>
-                <th className="px-4 py-2 font-medium">City</th>
-                <th className="px-4 py-2 font-medium">State</th>
-                <th className="px-4 py-2 font-medium">Past payout</th>
+              <tr className="bg-offwhite">
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">Name</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">Email</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">City</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">State</th>
+                <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">Past payout</th>
               </tr>
             </thead>
             <tbody>
               {(contacts ?? []).map((c) => (
-                <tr key={c.id} className="border-b last:border-0">
-                  <td className="px-4 py-2">{c.first_name ?? "—"}</td>
-                  <td className="px-4 py-2">{c.email}</td>
-                  <td className="px-4 py-2">{c.city ?? "—"}</td>
-                  <td className="px-4 py-2">{c.state ?? "—"}</td>
-                  <td className="px-4 py-2">{formatCentsAsWholeDollars(c.past_payout_amount_cents)}</td>
+                <tr key={c.id} className="border-b border-pastel-green-500 last:border-0">
+                  <td className="px-4 py-3 text-turf-green-500">{c.first_name ?? "—"}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{c.email}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{c.city ?? "—"}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{c.state ?? "—"}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{formatCentsAsWholeDollars(c.past_payout_amount_cents)}</td>
                 </tr>
               ))}
               {(contacts ?? []).length === 0 && (

@@ -16,6 +16,7 @@ const campaignSchema = z.object({
   event_state: z.string().trim().optional(),
   event_dates: z.string().trim().min(1, "Dates are required"),
   event_hours: z.string().trim().optional(),
+  accepted_categories: z.string().trim().optional(),
   bonus_code: z.string().trim().min(1, "Bonus code is required"),
 });
 
@@ -31,6 +32,7 @@ export async function createCampaign(formData: FormData): Promise<CreateCampaign
     event_state: formData.get("event_state"),
     event_dates: formData.get("event_dates"),
     event_hours: formData.get("event_hours"),
+    accepted_categories: formData.get("accepted_categories"),
     bonus_code: formData.get("bonus_code"),
   });
 
@@ -54,6 +56,7 @@ export async function createCampaign(formData: FormData): Promise<CreateCampaign
       event_state: parsed.data.event_state || null,
       event_dates: parsed.data.event_dates,
       event_hours: parsed.data.event_hours || null,
+      accepted_categories: parsed.data.accepted_categories || null,
       bonus_code: parsed.data.bonus_code,
       created_by: session.user!.email,
     })
@@ -114,8 +117,10 @@ export async function sendTestEmail(campaignId: string): Promise<{ ok: boolean; 
     {
       event_venue: campaign.event_venue,
       event_city: campaign.event_city,
+      event_state: campaign.event_state,
       event_dates: campaign.event_dates,
       event_hours: campaign.event_hours,
+      accepted_categories: campaign.accepted_categories,
       bonus_code: campaign.bonus_code,
     }
   );
@@ -195,8 +200,10 @@ export async function sendCampaign(campaignId: string): Promise<{ ok: boolean; m
     const rendered = renderInviteEmail(contact, {
       event_venue: campaign.event_venue,
       event_city: campaign.event_city,
+      event_state: campaign.event_state,
       event_dates: campaign.event_dates,
       event_hours: campaign.event_hours,
+      accepted_categories: campaign.accepted_categories,
       bonus_code: campaign.bonus_code,
     });
 
