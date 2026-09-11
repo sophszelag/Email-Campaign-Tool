@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+/*
+ * Product UI palette (SidelineSwap "forest-primary" design system).
+ * Hex values are taken from the project brief. `pastel-green-500` (the
+ * default border color) is an approximation — confirm the exact value
+ * against SidelineSwap's real design-system tokens if this project is
+ * ever wired into that package directly.
+ */
+@theme {
+  --color-turf-green-500: #253c32;
+  --color-slate-green-500: #61716a;
+  --color-green-500: #02c874;
+  --color-red-500: #e84f4f;
+  --color-pastel-green-500: #d7e4de;
+}
+
+body {
+  color: var(--color-turf-green-500);
+  background-color: #fafaf9;
+}
+
+/*
+ * Tailwind v4 defaults the bare `border` utility to currentColor. The
+ * brief calls for `border` alone to resolve to pastel-green-500, so we
+ * restore that default the way Tailwind's own v4 upgrade guide suggests.
+ */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-pastel-green-500, currentColor);
+  }
+}
+
