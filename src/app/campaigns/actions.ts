@@ -4,10 +4,10 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/session";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { renderInviteEmail } from "@/lib/email/template";
 import { sendCampaignEmail } from "@/lib/email/resend";
-import type { Contact } from "@/types";
+import { store, newId } from "@/lib/db/store";
+import type { Campaign, Contact } from "@/types";
 
 const campaignSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -45,37 +45,36 @@ export async function createCampaign(formData: FormData): Promise<CreateCampaign
     return { ok: false, message: "Select at least one recipient." };
   }
 
-  const supabase = getSupabaseServerClient();
+  const now = new Date().toISOString();
+  const campaign: Campaign = {
+    id: newId(),
+    name: parsed.data.name,
+    template_id: "monkeysports_invite",
+    event_venue: parsed.data.event_venue,
+    event_city: parsed.data.event_city,
+    event_state: parsed.data.event_state || null,
+    event_dates: parsed.data.event_dates,
+    event_hours: parsed.data.event_hours || null,
+    accepted_categories: parsed.data.accepted_categories || null,
+    bonus_code: parsed.data.bonus_code,
+    status: "draft",
+    sent_at: null,
+    created_by: session.user!.email ?? null,
+    created_at: now,
+  };
+  store.campaigns.push(campaign);
 
-  const { data: campaign, error: campaignError } = await supabase
-    .from("campaigns")
-    .insert({
-      name: parsed.data.name,
-      event_venue: parsed.data.event_venue,
-      event_city: parsed.data.event_city,
-      event_state: parsed.data.event_state || null,
-      event_dates: parsed.data.event_dates,
-      event_hours: parsed.data.event_hours || null,
-      accepted_categories: parsed.data.accepted_categories || null,
-      bonus_code: parsed.data.bonus_code,
-      created_by: session.user!.email,
-    })
-    .select()
-    .single();
-
-  if (campaignError || !campaign) {
-    return { ok: false, message: `Couldn't create campaign: ${campaignError?.message}` };
-  }
-
-  const { error: recipientsError } = await supabase.from("campaign_recipients").insert(
-    contactIds.map((contactId) => ({
+  for (const contactId of contactIds) {
+    store.campaignRecipients.push({
+      id: newId(),
       campaign_id: campaign.id,
       contact_id: contactId,
-    }))
-  );
-
-  if (recipientsError) {
-    return { ok: false, message: `Campaign created, but couldn't add recipients: ${recipientsError.message}` };
+      personalized_preview: null,
+      status: "queued",
+      resend_email_id: null,
+      sent_at: null,
+      created_at: now,
+    });
   }
 
   revalidatePath("/dashboard");
@@ -86,31 +85,24 @@ export async function sendTestEmail(campaignId: string): Promise<{ ok: boolean; 
   const session = await requireSession();
   const testEmail = session.user!.email!;
 
-  const supabase = getSupabaseServerClient();
-  const { data: campaign, error: campaignError } = await supabase
-    .from("campaigns")
-    .select("*")
-    .eq("id", campaignId)
-    .single();
-
-  if (campaignError || !campaign) {
+  const campaign = store.campaigns.find((c) => c.id === campaignId);
+  if (!campaign) {
     return { ok: false, message: "Campaign not found." };
   }
 
   // Use the first real recipient's data for a representative preview, or
   // sane placeholders if the campaign has none yet.
-  const { data: firstRecipient } = await supabase
-    .from("campaign_recipients")
-    .select("contacts(*)")
-    .eq("campaign_id", campaignId)
-    .limit(1)
-    .maybeSingle();
+  const firstRecipient = store.campaignRecipients.find((r) => r.campaign_id === campaignId);
+  const firstContact = firstRecipient
+    ? store.contacts.find((c) => c.id === firstRecipient.contact_id)
+    : undefined;
 
-  const sampleContact = (firstRecipient?.contacts as unknown as Contact | null) ?? {
-    email: testEmail,
-    first_name: "Alex",
-    past_payout_amount_cents: 48700,
-  };
+  const sampleContact: Contact | { email: string; first_name: string; past_payout_amount_cents: number } =
+    firstContact ?? {
+      email: testEmail,
+      first_name: "Alex",
+      past_payout_amount_cents: 48700,
+    };
 
   const rendered = renderInviteEmail(
     { ...sampleContact, email: testEmail },
@@ -148,51 +140,39 @@ export async function sendTestEmail(campaignId: string): Promise<{ ok: boolean; 
 export async function sendCampaign(campaignId: string): Promise<{ ok: boolean; message: string }> {
   await requireSession();
 
-  const supabase = getSupabaseServerClient();
-
-  const { data: campaign, error: campaignError } = await supabase
-    .from("campaigns")
-    .select("*")
-    .eq("id", campaignId)
-    .single();
-
-  if (campaignError || !campaign) {
+  const campaign = store.campaigns.find((c) => c.id === campaignId);
+  if (!campaign) {
     return { ok: false, message: "Campaign not found." };
   }
   if (campaign.status === "sent") {
     return { ok: false, message: "This campaign has already been sent." };
   }
 
-  const { data: recipients, error: recipientsError } = await supabase
-    .from("campaign_recipients")
-    .select("*, contacts(*)")
-    .eq("campaign_id", campaignId)
-    .eq("status", "queued");
-
-  if (recipientsError) {
-    return { ok: false, message: `Couldn't load recipients: ${recipientsError.message}` };
-  }
-  if (!recipients || recipients.length === 0) {
+  const recipients = store.campaignRecipients.filter(
+    (r) => r.campaign_id === campaignId && r.status === "queued"
+  );
+  if (recipients.length === 0) {
     return { ok: false, message: "No queued recipients to send to." };
   }
 
-  await supabase.from("campaigns").update({ status: "sending" }).eq("id", campaignId);
+  campaign.status = "sending";
 
-  const { data: suppressions } = await supabase.from("suppressions").select("email");
-  const suppressedEmails = new Set((suppressions ?? []).map((s) => s.email));
+  const suppressedEmails = new Set(store.suppressions.map((s) => s.email));
 
   let sentCount = 0;
   let suppressedCount = 0;
   let failedCount = 0;
 
   for (const recipient of recipients) {
-    const contact = recipient.contacts as unknown as Contact;
+    const contact = store.contacts.find((c) => c.id === recipient.contact_id);
+    if (!contact) {
+      failedCount += 1;
+      recipient.status = "failed";
+      continue;
+    }
 
     if (suppressedEmails.has(contact.email)) {
-      await supabase
-        .from("campaign_recipients")
-        .update({ status: "unsubscribed" })
-        .eq("id", recipient.id);
+      recipient.status = "unsubscribed";
       suppressedCount += 1;
       continue;
     }
@@ -216,26 +196,19 @@ export async function sendCampaign(campaignId: string): Promise<{ ok: boolean; m
 
     if (error) {
       failedCount += 1;
-      await supabase.from("campaign_recipients").update({ status: "failed" }).eq("id", recipient.id);
+      recipient.status = "failed";
       continue;
     }
 
     sentCount += 1;
-    await supabase
-      .from("campaign_recipients")
-      .update({
-        status: "sent",
-        resend_email_id: id,
-        personalized_preview: rendered.html,
-        sent_at: new Date().toISOString(),
-      })
-      .eq("id", recipient.id);
+    recipient.status = "sent";
+    recipient.resend_email_id = id;
+    recipient.personalized_preview = rendered.html;
+    recipient.sent_at = new Date().toISOString();
   }
 
-  await supabase
-    .from("campaigns")
-    .update({ status: "sent", sent_at: new Date().toISOString() })
-    .eq("id", campaignId);
+  campaign.status = "sent";
+  campaign.sent_at = new Date().toISOString();
 
   revalidatePath(`/campaigns/${campaignId}`);
   revalidatePath("/dashboard");

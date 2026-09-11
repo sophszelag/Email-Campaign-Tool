@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/session";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { parseContactsCsv } from "@/lib/csv";
+import { store, newId } from "@/lib/db/store";
 
 export type UploadResult = {
   ok: boolean;
@@ -28,17 +28,28 @@ export async function uploadContactsCsv(formData: FormData): Promise<UploadResul
     return { ok: false, message: "No valid rows found — check the file has an `email` column." };
   }
 
-  const supabase = getSupabaseServerClient();
-
   // Upsert on email: re-uploading the same list updates city/state/payout
   // rather than creating duplicates.
-  const { error } = await supabase.from("contacts").upsert(
-    contacts.map((c) => ({ ...c, source: "csv" })),
-    { onConflict: "email" }
-  );
-
-  if (error) {
-    return { ok: false, message: `Database error: ${error.message}` };
+  for (const parsed of contacts) {
+    const existing = store.contacts.find((c) => c.email === parsed.email);
+    if (existing) {
+      existing.first_name = parsed.first_name;
+      existing.city = parsed.city;
+      existing.state = parsed.state;
+      existing.past_payout_amount_cents = parsed.past_payout_amount_cents;
+    } else {
+      store.contacts.push({
+        id: newId(),
+        email: parsed.email,
+        first_name: parsed.first_name,
+        last_name: null,
+        city: parsed.city,
+        state: parsed.state,
+        past_payout_amount_cents: parsed.past_payout_amount_cents,
+        source: "csv",
+        created_at: new Date().toISOString(),
+      });
+    }
   }
 
   revalidatePath("/contacts");

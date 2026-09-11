@@ -1,28 +1,20 @@
 import Link from "next/link";
 import { requireSession } from "@/lib/session";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { store } from "@/lib/db/store";
 import { getCampaignMetrics } from "@/lib/metrics";
 import AppShell from "@/components/AppShell";
 import StatusBadge from "@/components/StatusBadge";
-import type { Campaign } from "@/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const session = await requireSession();
 
-  const supabase = getSupabaseServerClient();
-  const [{ data: campaigns, error }, { count: contactCount }] = await Promise.all([
-    supabase.from("campaigns").select("*").order("created_at", { ascending: false }),
-    supabase.from("contacts").select("*", { count: "exact", head: true }),
-  ]);
-
-  const campaignsWithMetrics = await Promise.all(
-    (campaigns ?? []).map(async (campaign: Campaign) => ({
-      campaign,
-      metrics: await getCampaignMetrics(campaign.id),
-    }))
-  );
+  const campaigns = [...store.campaigns].sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const campaignsWithMetrics = campaigns.map((campaign) => ({
+    campaign,
+    metrics: getCampaignMetrics(campaign.id),
+  }));
 
   const totals = campaignsWithMetrics.reduce(
     (acc, { metrics }) => ({
@@ -49,13 +41,11 @@ export default async function DashboardPage() {
       }
     >
       <div className="mb-7 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Metric label="Contacts on file" value={(contactCount ?? 0).toLocaleString()} />
+        <Metric label="Contacts on file" value={store.contacts.length.toLocaleString()} />
         <Metric label="Campaigns" value={campaignsWithMetrics.length.toLocaleString()} />
         <Metric label="Total sent" value={totals.sent.toLocaleString()} />
         <Metric label="Avg. open rate" value={`${avgOpenRate.toFixed(1)}%`} />
       </div>
-
-      {error && <p className="mb-4 text-sm text-red-500">Couldn&apos;t load campaigns: {error.message}</p>}
 
       <div className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">
         <table className="w-full min-w-[720px] text-left text-sm">

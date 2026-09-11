@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "svix";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { store, newId, upsertSuppression } from "@/lib/db/store";
 
 type ResendWebhookEvent = {
   type: string;
@@ -39,55 +39,67 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true }); // nothing to correlate, ignore
   }
 
-  const supabase = getSupabaseServerClient();
-  const { data: recipient } = await supabase
-    .from("campaign_recipients")
-    .select("id, contact_id, contacts(email)")
-    .eq("resend_email_id", emailId)
-    .maybeSingle();
-
+  const recipient = store.campaignRecipients.find((r) => r.resend_email_id === emailId);
   if (!recipient) {
     return NextResponse.json({ ok: true }); // unrelated send (e.g. a test email), ignore
   }
 
-  const recipientEmail = (recipient.contacts as unknown as { email: string } | null)?.email;
+  const recipientEmail = store.contacts.find((c) => c.id === recipient.contact_id)?.email;
 
   switch (event.type) {
     case "email.delivered":
-      await supabase.from("campaign_recipients").update({ status: "delivered" }).eq("id", recipient.id);
-      await supabase.from("campaign_events").insert({ recipient_id: recipient.id, event_type: "delivered" });
+      recipient.status = "delivered";
+      store.campaignEvents.push({
+        id: newId(),
+        recipient_id: recipient.id,
+        event_type: "delivered",
+        url: null,
+        occurred_at: new Date().toISOString(),
+      });
       break;
 
     case "email.opened":
-      await supabase.from("campaign_events").insert({ recipient_id: recipient.id, event_type: "open" });
+      store.campaignEvents.push({
+        id: newId(),
+        recipient_id: recipient.id,
+        event_type: "open",
+        url: null,
+        occurred_at: new Date().toISOString(),
+      });
       break;
 
     case "email.clicked":
-      await supabase.from("campaign_events").insert({
+      store.campaignEvents.push({
+        id: newId(),
         recipient_id: recipient.id,
         event_type: "click",
         url: event.data.click?.link ?? null,
+        occurred_at: new Date().toISOString(),
       });
       break;
 
     case "email.bounced":
-      await supabase.from("campaign_recipients").update({ status: "bounced" }).eq("id", recipient.id);
-      await supabase.from("campaign_events").insert({ recipient_id: recipient.id, event_type: "bounce" });
-      if (recipientEmail) {
-        await supabase
-          .from("suppressions")
-          .upsert({ email: recipientEmail, reason: "bounced" }, { onConflict: "email" });
-      }
+      recipient.status = "bounced";
+      store.campaignEvents.push({
+        id: newId(),
+        recipient_id: recipient.id,
+        event_type: "bounce",
+        url: null,
+        occurred_at: new Date().toISOString(),
+      });
+      if (recipientEmail) upsertSuppression(recipientEmail, "bounced");
       break;
 
     case "email.complained":
-      await supabase.from("campaign_recipients").update({ status: "complained" }).eq("id", recipient.id);
-      await supabase.from("campaign_events").insert({ recipient_id: recipient.id, event_type: "complaint" });
-      if (recipientEmail) {
-        await supabase
-          .from("suppressions")
-          .upsert({ email: recipientEmail, reason: "complained" }, { onConflict: "email" });
-      }
+      recipient.status = "complained";
+      store.campaignEvents.push({
+        id: newId(),
+        recipient_id: recipient.id,
+        event_type: "complaint",
+        url: null,
+        occurred_at: new Date().toISOString(),
+      });
+      if (recipientEmail) upsertSuppression(recipientEmail, "complained");
       break;
 
     default:

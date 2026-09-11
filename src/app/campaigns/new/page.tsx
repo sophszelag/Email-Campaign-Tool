@@ -1,5 +1,5 @@
 import { requireSession } from "@/lib/session";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { store } from "@/lib/db/store";
 import AppShell from "@/components/AppShell";
 import CreateCampaignForm from "@/app/campaigns/new/CreateCampaignForm";
 
@@ -15,27 +15,20 @@ export default async function NewCampaignPage({
   const session = await requireSession();
   const { city, state } = await searchParams;
 
-  const supabase = getSupabaseServerClient();
+  const suppressedEmails = new Set(store.suppressions.map((s) => s.email));
 
-  const { data: suppressions } = await supabase.from("suppressions").select("email");
-  const suppressedEmails = (suppressions ?? []).map((s) => s.email);
+  let contacts = store.contacts.filter((c) => !suppressedEmails.has(c.email));
+  if (city) contacts = contacts.filter((c) => c.city?.toLowerCase().includes(city.toLowerCase()));
+  if (state) contacts = contacts.filter((c) => c.state?.toLowerCase().includes(state.toLowerCase()));
+  contacts = [...contacts].sort((a, b) => (a.first_name ?? "").localeCompare(b.first_name ?? ""));
 
-  let query = supabase
-    .from("contacts")
-    .select("*")
-    .order("first_name", { ascending: true })
-    .limit(RECIPIENT_LIMIT);
-
-  if (city) query = query.ilike("city", `%${city}%`);
-  if (state) query = query.ilike("state", `%${state}%`);
-  if (suppressedEmails.length > 0) query = query.not("email", "in", `(${suppressedEmails.join(",")})`);
-
-  const { data: contacts, count } = await query;
+  const count = contacts.length;
+  contacts = contacts.slice(0, RECIPIENT_LIMIT);
 
   return (
     <AppShell userEmail={session.user!.email!} title="New campaign">
       <CreateCampaignForm
-        contacts={contacts ?? []}
+        contacts={contacts}
         totalMatches={count}
         recipientLimit={RECIPIENT_LIMIT}
         city={city}

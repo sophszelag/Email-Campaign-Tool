@@ -1,6 +1,11 @@
 -- Event Campaign Tool — Phase 1 schema
--- Run this against your Supabase project (SQL Editor, or `supabase db push`
--- if you're using the Supabase CLI locally).
+--
+-- NOT CURRENTLY WIRED UP. The app runs on an in-memory store
+-- (src/lib/db/store.ts) for now — no database is required to run it.
+-- This file is kept as the intended schema for whenever real persistence
+-- (Supabase or otherwise) gets added back; at that point, run it against
+-- your Postgres instance (Supabase's SQL Editor, `supabase db push`, etc.)
+-- and reconnect the app's data-access layer to it.
 
 create extension if not exists "pgcrypto";
 

@@ -8,27 +8,48 @@ multiple templates, reminder signups) for later phases.
 
 ## Stack
 
-Next.js (App Router) · Supabase (Postgres) · NextAuth (Google SSO) · Resend
-(transactional email) · Tailwind CSS · deployed on Vercel.
+Next.js (App Router) · NextAuth (Google SSO) · Resend (transactional email)
+· Tailwind CSS · deployed on Vercel. No database yet — see "Data storage"
+below.
+
+## Data storage — read this before deploying
+
+There is currently **no database wired up on purpose** (Supabase was pulled
+out while that account isn't ready yet). Contacts, campaigns, and sends
+all live in a plain in-memory store (`src/lib/db/store.ts`) — no external
+account or setup needed to run the app at all.
+
+This is genuinely fine for running it locally with `npm run dev`: the data
+sticks around for as long as that one process keeps running. **It will
+not behave the same once deployed to Vercel.** Vercel runs routes as
+separate, frequently-recycled serverless functions that don't share
+memory with each other — so a CSV you upload, or a campaign you create,
+can simply be invisible on the very next page load, or vanish entirely.
+Treat a Vercel deployment right now as good for checking that pages
+render and the design looks right, not as something to actually store
+real data in or send a real campaign from.
+
+Before this is used for anything real, it needs a real database back —
+`supabase/migrations/0001_init.sql` still describes the intended schema
+for whenever that happens (Supabase or otherwise), and `src/lib/db/store.ts`
+is the one file every page/action talks to, so swapping it for real
+queries shouldn't require touching the pages themselves.
 
 ## What's here vs. what needs setup
 
-The code is done, but three third-party accounts have to exist before
-anything actually works end-to-end. Nothing in this repo can create those
-accounts for you — **this is Brendan's part**:
+Once the database question above is settled, two more third-party
+accounts have to exist before sending real email actually works. Nothing
+in this repo can create those accounts for you — **this is Brendan's
+part**:
 
-1. **Supabase project** — a new project, with the SQL in
-   `supabase/migrations/0001_init.sql` run against it (paste it into the
-   Supabase SQL Editor, or use the Supabase CLI). Gives you
-   `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`.
-2. **Resend account** — with `mail.sidelineswap.com` added and verified as
+1. **Resend account** — with `mail.sidelineswap.com` added and verified as
    a sending domain (SPF/DKIM/DMARC records added wherever
    `sidelineswap.com` is registered), plus a webhook pointed at
    `https://<your-vercel-domain>/api/webhooks/resend` subscribed to the
    `email.delivered`, `email.opened`, `email.clicked`, `email.bounced`,
    and `email.complained` events. Gives you `RESEND_API_KEY` and
    `RESEND_WEBHOOK_SECRET`.
-3. **Google OAuth credentials** — an OAuth client in Google Workspace
+2. **Google OAuth credentials** — an OAuth client in Google Workspace
    admin, restricted to internal use, with the authorized redirect URI
    `https://<your-vercel-domain>/api/auth/callback/google` (and
    `http://localhost:3000/api/auth/callback/google` for local dev). Gives
@@ -36,7 +57,9 @@ accounts for you — **this is Brendan's part**:
 
 Once you have those, set all the variables in `.env.example` as real
 values in Vercel's Project Settings → Environment Variables (and in a
-local `.env.local` for development). Never commit real values.
+local `.env.local` for development). Never commit real values. Without
+these, the app still builds and the sign-in page still loads, but signing
+in and sending won't work.
 
 ## Running locally
 
@@ -69,19 +92,17 @@ Alex,alex@example.com,487,Woodbridge,NJ
 ## The email template
 
 `src/lib/email/template.ts` renders the one Phase 1 template (the
-MonkeySports/trade-in invite) to HTML + plain text for a given contact and
-campaign. **This was built to the brand spec described in the project
-brief, not from the actual mockup file** —
-`sidelineswap-monkeysports-woodbridge-invite.html` hasn't been added to
-this repo yet. Once it is, swap the markup in that file for the mockup's
-real HTML; the merge-field contract (`ContactFields` / `CampaignFields` in
-that same file) can stay the same.
+MonkeySports/Woodbridge trade-in invite) to HTML + plain text for a given
+contact and campaign. The markup/CSS/copy is taken directly from
+`sidelineswap-monkeysports-woodbridge-invite.html`, with the
+Woodbridge-specific details swapped for merge fields. A few gaps vs. that
+mockup are called out in comments at the top of that file — most notably,
+the CTA buttons still point at `#` (no RSVP/event-finder page exists yet
+to send them to), and the footer drops "Update preferences"/"View in
+browser" since neither exists yet.
 
-One more approximation worth flagging: the product UI's default border
-color (`pastel-green-500`, used by the bare `border` class everywhere) is
-a guess (`#D7E4DE`) since the brief didn't give an exact hex — check it
-against SidelineSwap's real design-system tokens if this project ever
-needs to match pixel-for-pixel.
+The product UI's colors in `src/app/globals.css` are the real hex values
+from `sidelineswap-event-campaign-tool-mockup.html`'s design tokens.
 
 ## How a send works
 
@@ -100,11 +121,12 @@ needs to match pixel-for-pixel.
    dashboard and its detail page.
 
 Every email includes a one-click unsubscribe link (`/api/unsubscribe`)
-that adds the address to the `suppressions` table immediately — from then
-on, every future send checks that table first and skips suppressed
-addresses automatically. A hard bounce or spam complaint reported by
-Resend's webhook does the same thing automatically, no manual step
-needed.
+that adds the address to the suppression list immediately — from then on,
+every future send checks that list first and skips suppressed addresses
+automatically. A hard bounce or spam complaint reported by Resend's
+webhook does the same thing automatically, no manual step needed. (Same
+caveat as above: right now that list only lives as long as the process
+does.)
 
 ## Notes on scale
 

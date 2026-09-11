@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
-import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { store } from "@/lib/db/store";
 import { getCampaignMetrics } from "@/lib/metrics";
 import { renderInviteEmail } from "@/lib/email/template";
 import AppShell from "@/components/AppShell";
@@ -8,7 +8,6 @@ import StatusBadge from "@/components/StatusBadge";
 import PreviewPane, { type PreviewOption } from "@/app/campaigns/[id]/PreviewPane";
 import SendTestButton from "@/app/campaigns/[id]/SendTestButton";
 import SendCampaignButton from "@/app/campaigns/[id]/SendCampaignButton";
-import type { Contact } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -22,23 +21,16 @@ export default async function CampaignDetailPage({
   const session = await requireSession();
   const { id } = await params;
 
-  const supabase = getSupabaseServerClient();
-
-  const { data: campaign } = await supabase.from("campaigns").select("*").eq("id", id).single();
+  const campaign = store.campaigns.find((c) => c.id === id);
   if (!campaign) notFound();
 
-  const [{ data: recipients }, { count: recipientCount }, metrics] = await Promise.all([
-    supabase.from("campaign_recipients").select("*, contacts(*)").eq("campaign_id", id).limit(PREVIEW_SAMPLE_SIZE),
-    supabase
-      .from("campaign_recipients")
-      .select("*", { count: "exact", head: true })
-      .eq("campaign_id", id)
-      .eq("status", "queued"),
-    getCampaignMetrics(id),
-  ]);
+  const allRecipients = store.campaignRecipients.filter((r) => r.campaign_id === id);
+  const recipientCount = allRecipients.filter((r) => r.status === "queued").length;
+  const metrics = getCampaignMetrics(id);
 
-  const previewOptions: PreviewOption[] = (recipients ?? []).map((r) => {
-    const contact = r.contacts as unknown as Contact;
+  const previewOptions: PreviewOption[] = allRecipients.slice(0, PREVIEW_SAMPLE_SIZE).flatMap((r) => {
+    const contact = store.contacts.find((c) => c.id === r.contact_id);
+    if (!contact) return [];
     const rendered = renderInviteEmail(contact, {
       event_venue: campaign.event_venue,
       event_city: campaign.event_city,
@@ -48,11 +40,13 @@ export default async function CampaignDetailPage({
       accepted_categories: campaign.accepted_categories,
       bonus_code: campaign.bonus_code,
     });
-    return {
-      id: r.id,
-      label: `${contact.first_name ?? contact.email} <${contact.email}>`,
-      html: rendered.html,
-    };
+    return [
+      {
+        id: r.id,
+        label: `${contact.first_name ?? contact.email} <${contact.email}>`,
+        html: rendered.html,
+      },
+    ];
   });
 
   return (
@@ -86,7 +80,7 @@ export default async function CampaignDetailPage({
         {campaign.status === "sent" ? (
           <p className="text-sm text-slate-green-500">This campaign has already been sent.</p>
         ) : (
-          <SendCampaignButton campaignId={campaign.id} recipientCount={recipientCount ?? 0} />
+          <SendCampaignButton campaignId={campaign.id} recipientCount={recipientCount} />
         )}
       </section>
     </AppShell>
