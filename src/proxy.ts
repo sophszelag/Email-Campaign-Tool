@@ -24,14 +24,11 @@ export async function proxy(request: NextRequest) {
 export const config = {
   // Everything requires a signed-in @sidelineswap.com session EXCEPT:
   // - /api/auth/*        (NextAuth's own sign-in/callback routes)
-  // - /api/webhooks/*     (Resend's server-to-server webhook)
-  // - /unsubscribe        (the public one-click unsubscribe page)
-  // - /api/unsubscribe    (the link every email points to)
   // - /signin             (the sign-in page itself)
   // - /signup/*           (the public reminder-signup form, one per region)
   // - /preregister/*      (the public trade-in pre-registration form)
   // - static assets
   matcher: [
-    "/((?!api/auth|api/webhooks|unsubscribe|api/unsubscribe|signin|signup|preregister|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/auth|signin|signup|preregister|_next/static|_next/image|favicon.ico).*)",
   ],
 };

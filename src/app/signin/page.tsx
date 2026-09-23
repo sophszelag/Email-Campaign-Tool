@@ -11,7 +11,7 @@ import { useSearchParams } from "next/navigation";
 // loaded lazily, on click, in the browser only.
 async function handleSignIn() {
   const { signIn } = await import("next-auth/react");
-  await signIn("google", { callbackUrl: "/dashboard" });
+  await signIn("google", { callbackUrl: "/reminders" });
 }
 
 function SignInCard() {
