@@ -39,10 +39,12 @@ const ITEM_COUNTS: [string, string][] = [
 
 export default function PreRegistrationForm({
   regionId,
+  eventId,
   fieldLabels,
   customQuestions,
 }: {
   regionId: string;
+  eventId: string | null;
   fieldLabels: Record<string, string>;
   customQuestions: CustomQuestion[];
 }) {
@@ -65,6 +67,7 @@ export default function PreRegistrationForm({
   return (
     <form action={formAction}>
       <input type="hidden" name="region_id" value={regionId} />
+      {eventId && <input type="hidden" name="event_id" value={eventId} />}
 
       <FormSection title="Contact information">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

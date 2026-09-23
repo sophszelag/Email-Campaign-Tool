@@ -8,6 +8,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const preRegSchema = z.object({
   region_id: z.string().trim().min(1),
+  event_id: z.string().trim().optional(),
   first_name: z.string().trim().min(1, "First name is required"),
   last_name: z.string().trim().min(1, "Last name is required"),
   email: z.string().trim().min(1, "Email is required"),
@@ -27,6 +28,7 @@ export type PreRegResult = { ok: boolean; message: string };
 export async function submitPreRegistration(formData: FormData): Promise<PreRegResult> {
   const parsed = preRegSchema.safeParse({
     region_id: formData.get("region_id"),
+    event_id: formData.get("event_id"),
     first_name: formData.get("first_name"),
     last_name: formData.get("last_name"),
     email: formData.get("email"),
@@ -70,6 +72,7 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
   store.preRegistrations.push({
     id: newId(),
     region_id: region.id,
+    event_id: parsed.data.event_id?.trim() || null,
     first_name: parsed.data.first_name,
     last_name: parsed.data.last_name,
     email,

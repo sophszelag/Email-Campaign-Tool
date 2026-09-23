@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { PreRegistration, Region, ReminderSignup } from "@/types";
+import type { PreRegistration, Region, ReminderSignup, TradeInEvent } from "@/types";
 import { emptyFormCustomization } from "@/types";
 import { defaultReminderEmailSettings } from "@/lib/reminder-email-defaults";
 
@@ -22,6 +22,7 @@ type Store = {
   regions: Region[];
   reminderSignups: ReminderSignup[];
   preRegistrations: PreRegistration[];
+  events: TradeInEvent[];
 };
 
 // South NJ / Philadelphia is the first region, seeded to match Soph's real
@@ -57,6 +58,7 @@ export const store: Store =
     regions: [...SEED_REGIONS],
     reminderSignups: [],
     preRegistrations: [],
+    events: [],
   });
 
 export function newId(): string {

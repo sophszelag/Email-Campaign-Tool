@@ -49,6 +49,28 @@ export type Region = {
   created_at: string;
 };
 
+export type EventStatus = "upcoming" | "completed" | "cancelled";
+
+// A scheduled trade-in event at a specific venue. Coordinators manage
+// these directly (add/edit/cancel) rather than re-uploading a
+// spreadsheet, since events change one at a time, not in bulk.
+export type TradeInEvent = {
+  id: string;
+  region_id: string;
+  /** Which of the region's subregion_options this event serves, for matching reminder signups to it. Null if it isn't tied to one specific area. */
+  subregion: string | null;
+  venue: string;
+  city_state: string;
+  /** ISO yyyy-mm-dd */
+  start_date: string;
+  /** ISO yyyy-mm-dd, for multi-day events. Null for a single-day event. */
+  end_date: string | null;
+  /** Free text, e.g. "10am–4pm". */
+  hours: string | null;
+  status: EventStatus;
+  created_at: string;
+};
+
 export type TravelRadius = "25" | "50" | "100" | "any";
 
 // One response to a region's public "remind me about events near me" form.
@@ -83,13 +105,12 @@ export type Sport =
 
 export type ItemCount = "1-3" | "4-7" | "8-12" | "13+";
 
-// A customer registering ahead of a specific trade-in event. Not tied to
-// a real scheduled event yet — once an event schedule exists, this should
-// gain an event reference so the form (and this record) reflect the real
-// event instead of the generic placeholder.
+// A customer registering ahead of a specific trade-in event.
 export type PreRegistration = {
   id: string;
   region_id: string;
+  /** The event shown on the form at the time they registered. Null if the region had no upcoming event scheduled yet. */
+  event_id: string | null;
   first_name: string;
   last_name: string;
   email: string;
