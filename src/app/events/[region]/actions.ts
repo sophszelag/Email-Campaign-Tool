@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/session";
-import { store, newId } from "@/lib/db/store";
+import { store } from "@/lib/db/store";
 import { parseEventsCsv } from "@/lib/events-csv";
-import type { EventStatus, TradeInEvent } from "@/types";
+import { syncRegionEvents } from "@/lib/events-sync";
+import type { EventStatus } from "@/types";
 
 export type UploadEventsResult = { ok: boolean; message: string };
 
@@ -38,48 +39,7 @@ export async function uploadEventsCsv(
     return { ok: false, message: `No valid rows found in that file. ${errors.join(" ")}`.trim() };
   }
 
-  const existing = store.events.filter((e) => e.region_id === region.id);
-  const existingByKey = new Map(existing.map((e) => [`${e.venue.trim().toLowerCase()}|${e.start_date}`, e]));
-  const seenIds = new Set<string>();
-  const synced: TradeInEvent[] = [];
-  let added = 0;
-  let updated = 0;
-
-  for (const row of rows) {
-    const key = `${row.venue.trim().toLowerCase()}|${row.start_date}`;
-    const match = existingByKey.get(key);
-
-    if (match) {
-      match.city_state = row.city_state;
-      match.end_date = row.end_date;
-      match.hours = row.hours;
-      match.subregion = row.subregion;
-      match.status = row.status;
-      synced.push(match);
-      seenIds.add(match.id);
-      updated++;
-    } else {
-      const created: TradeInEvent = {
-        id: newId(),
-        region_id: region.id,
-        venue: row.venue,
-        city_state: row.city_state,
-        start_date: row.start_date,
-        end_date: row.end_date,
-        hours: row.hours,
-        subregion: row.subregion,
-        status: row.status,
-        created_at: new Date().toISOString(),
-      };
-      synced.push(created);
-      seenIds.add(created.id);
-      added++;
-    }
-  }
-
-  const removed = existing.filter((e) => !seenIds.has(e.id)).length;
-
-  store.events = [...store.events.filter((e) => e.region_id !== region.id), ...synced];
+  const { added, updated, removed } = syncRegionEvents(region.id, rows);
 
   revalidatePath(`/events/${region.slug}`);
   revalidatePath(`/preregister/${region.slug}`);

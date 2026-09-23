@@ -32,12 +32,15 @@ export default async function RegionEventsPage({
     <AppShell userEmail={session.user!.email!} title="Events" subtitle={region.name}>
       <div className="space-y-6">
         <section className="rounded-[10px] border bg-white p-5 shadow-sm">
-          <h2 className="mb-1 text-sm font-bold text-turf-green-500">Upload weekly events CSV</h2>
+          <h2 className="mb-1 text-sm font-bold text-turf-green-500">Upload this region&apos;s events CSV</h2>
           <p className="mb-4 text-[13px] text-slate-green-500">
             The calendar below syncs to whatever&apos;s in the file: rows are added or updated by
-            matching venue + date, and any event no longer in the file is removed. No manual
-            entering of events needed — just upload the sheet from your event ops manager each
-            week.
+            matching venue + date, and any event no longer in the file is removed. Prefer to
+            update every region in one file? Use the{" "}
+            <Link href="/events" className="font-bold text-turf-green-500 underline">
+              team-wide upload
+            </Link>{" "}
+            instead.
           </p>
 
           <UploadEventsForm regionId={region.id} />
