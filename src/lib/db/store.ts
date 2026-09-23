@@ -4,6 +4,8 @@ import type {
   CampaignEvent,
   CampaignRecipient,
   Contact,
+  Region,
+  ReminderSignup,
   Suppression,
   SuppressionReason,
 } from "@/types";
@@ -29,7 +31,31 @@ type Store = {
   campaignRecipients: CampaignRecipient[];
   campaignEvents: CampaignEvent[];
   suppressions: Suppression[];
+  regions: Region[];
+  reminderSignups: ReminderSignup[];
 };
+
+// South NJ / Philadelphia is the first region, seeded to match Soph's real
+// Google Form exactly. More regions get added here as they come online.
+const SEED_REGIONS: Region[] = [
+  {
+    id: "south-nj-philadelphia",
+    slug: "south-nj-philadelphia",
+    name: "South NJ / Philadelphia",
+    subregion_options: [
+      "Mercer County NJ (Dick's Princeton)",
+      "Burlington County NJ (Dicks Deptford, Dicks Cherry Hill, Dicks Mt. Laurel)",
+      "Delaware (House of Sport Brandywine, Dicks Christiana)",
+      "Bucks County PA (Dick's Oxford Valley)",
+      "Montgomery County (Dicks Montgomeryville, Dicks Willow Grove, Dicks Plymouth Meeting)",
+      "Lehigh Valley Area (Dick's Easton)",
+      "MonkeySports Woodbridge NJ",
+      "MonkeySports Lodi NJ",
+      "NJ Shore Area (Dicks Brick, Dicks Manahawkin)",
+    ],
+    created_at: new Date().toISOString(),
+  },
+];
 
 const globalForStore = globalThis as unknown as { __campaignToolStore?: Store };
 
@@ -41,6 +67,8 @@ export const store: Store =
     campaignRecipients: [],
     campaignEvents: [],
     suppressions: [],
+    regions: [...SEED_REGIONS],
+    reminderSignups: [],
   });
 
 export function newId(): string {

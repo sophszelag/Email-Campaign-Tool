@@ -75,3 +75,33 @@ export type CampaignMetrics = {
   bounced: number;
   unsubscribed: number;
 };
+
+// A geographic area SidelineSwap runs trade-in events in — each gets its
+// own public signup form and (eventually) its own reminder cadence.
+export type Region = {
+  id: string;
+  slug: string;
+  name: string;
+  /** The "Desired Regions for Reminders" checklist — specific to this region. */
+  subregion_options: string[];
+  created_at: string;
+};
+
+export type TravelRadius = "25" | "50" | "100" | "any";
+
+// One response to a region's public "remind me about events near me" form.
+export type ReminderSignup = {
+  id: string;
+  region_id: string;
+  full_name: string;
+  /** The form allows adding more than one email address per signup. */
+  emails: string[];
+  traded_before: boolean;
+  home_city_state: string;
+  home_store: string;
+  travel_radius: TravelRadius;
+  desired_subregions: string[];
+  desired_subregions_other: string | null;
+  requested_locations: string | null;
+  created_at: string;
+};
