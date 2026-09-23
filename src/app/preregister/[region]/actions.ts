@@ -56,6 +56,16 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
     return { ok: false, message: "Enter your referral or promo code, or choose “No” above." };
   }
 
+  const custom_answers: Record<string, string> = {};
+  for (const q of region.preregister_form.custom_questions) {
+    const value = formData.get(`custom_${q.id}`);
+    const trimmed = typeof value === "string" ? value.trim() : "";
+    if (q.required && !trimmed) {
+      return { ok: false, message: `Please answer: ${q.label}` };
+    }
+    if (trimmed) custom_answers[q.id] = trimmed;
+  }
+
   store.preRegistrations.push({
     id: newId(),
     region_id: region.id,
@@ -67,6 +77,7 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
     item_count: parsed.data.item_count as ItemCount,
     has_referral_code: hasReferralCode,
     referral_code: hasReferralCode ? referralCode : null,
+    custom_answers,
     created_at: new Date().toISOString(),
   });
 

@@ -76,6 +76,26 @@ export type CampaignMetrics = {
   unsubscribed: number;
 };
 
+// A free-text question a region's coordinator bolted onto one of their
+// public forms, in addition to the built-in fields.
+export type CustomQuestion = {
+  id: string;
+  label: string;
+  required: boolean;
+};
+
+// A region's edits to one of its public forms: reworded built-in
+// question labels (falls back to the form's default wording when a key
+// has no override) plus any extra questions appended at the end.
+export type FormCustomization = {
+  field_labels: Record<string, string>;
+  custom_questions: CustomQuestion[];
+};
+
+export function emptyFormCustomization(): FormCustomization {
+  return { field_labels: {}, custom_questions: [] };
+}
+
 // A geographic area SidelineSwap runs trade-in events in — each gets its
 // own public signup form and (eventually) its own reminder cadence.
 export type Region = {
@@ -84,6 +104,8 @@ export type Region = {
   name: string;
   /** The "Desired Regions for Reminders" checklist — specific to this region. */
   subregion_options: string[];
+  signup_form: FormCustomization;
+  preregister_form: FormCustomization;
   created_at: string;
 };
 
@@ -103,6 +125,8 @@ export type ReminderSignup = {
   desired_subregions: string[];
   desired_subregions_other: string | null;
   requested_locations: string | null;
+  /** Answers to this region's custom questions, keyed by CustomQuestion.id. */
+  custom_answers: Record<string, string>;
   created_at: string;
 };
 
@@ -134,5 +158,7 @@ export type PreRegistration = {
   item_count: ItemCount;
   has_referral_code: boolean;
   referral_code: string | null;
+  /** Answers to this region's custom questions, keyed by CustomQuestion.id. */
+  custom_answers: Record<string, string>;
   created_at: string;
 };

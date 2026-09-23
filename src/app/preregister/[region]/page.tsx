@@ -36,7 +36,11 @@ export default async function PreRegisterPage({
         sub="Exact date, time, and location will be confirmed by email"
       />
 
-      <PreRegistrationForm regionId={region.id} />
+      <PreRegistrationForm
+        regionId={region.id}
+        fieldLabels={region.preregister_form.field_labels}
+        customQuestions={region.preregister_form.custom_questions}
+      />
     </PortalPage>
   );
 }

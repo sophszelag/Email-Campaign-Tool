@@ -62,6 +62,16 @@ export async function submitReminderSignup(formData: FormData): Promise<SignupRe
     return { ok: false, message: "Pick at least one area you'd like reminders for." };
   }
 
+  const custom_answers: Record<string, string> = {};
+  for (const q of region.signup_form.custom_questions) {
+    const value = formData.get(`custom_${q.id}`);
+    const trimmed = typeof value === "string" ? value.trim() : "";
+    if (q.required && !trimmed) {
+      return { ok: false, message: `Please answer: ${q.label}` };
+    }
+    if (trimmed) custom_answers[q.id] = trimmed;
+  }
+
   store.reminderSignups.push({
     id: newId(),
     region_id: region.id,
@@ -74,6 +84,7 @@ export async function submitReminderSignup(formData: FormData): Promise<SignupRe
     desired_subregions: parsed.data.desired_subregions,
     desired_subregions_other: otherText,
     requested_locations: parsed.data.requested_locations?.trim() || null,
+    custom_answers,
     created_at: new Date().toISOString(),
   });
 

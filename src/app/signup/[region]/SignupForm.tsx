@@ -9,22 +9,31 @@ import {
   PortalCheckbox,
   PortalButton,
   SuccessState,
+  CustomQuestionFields,
   portalInputClass,
 } from "@/components/portal/PortalForm";
+import { SIGNUP_FIELD_DEFAULTS, getFieldLabel } from "@/lib/form-defaults";
+import type { CustomQuestion } from "@/types";
 
 const initialState: SignupResult = { ok: false, message: "" };
 
 export default function SignupForm({
   regionId,
   subregionOptions,
+  fieldLabels,
+  customQuestions,
 }: {
   regionId: string;
   subregionOptions: string[];
+  fieldLabels: Record<string, string>;
+  customQuestions: CustomQuestion[];
 }) {
   const [state, formAction, isPending] = useActionState(
     async (_prev: SignupResult, formData: FormData) => submitReminderSignup(formData),
     initialState
   );
+
+  const label = (key: string) => getFieldLabel(SIGNUP_FIELD_DEFAULTS, fieldLabels, key);
 
   if (state.ok) {
     return <SuccessState title="You're signed up!" message={state.message} />;
@@ -35,10 +44,10 @@ export default function SignupForm({
       <input type="hidden" name="region_id" value={regionId} />
 
       <FormSection title="Contact information">
-        <FormField label="Full Name" required>
+        <FormField label={label("full_name")} required>
           <input name="full_name" required className={portalInputClass} />
         </FormField>
-        <FormField label="Email Address (add multiple if desired)" required>
+        <FormField label={label("emails")} required>
           <textarea
             name="emails"
             required
@@ -50,13 +59,13 @@ export default function SignupForm({
       </FormSection>
 
       <FormSection title="About you">
-        <FormField label="Have you traded in with us before?" required>
+        <FormField label={label("traded_before")} required>
           <div className="flex flex-col gap-2.5">
             <RadioCard name="traded_before" value="yes" label="Yes" />
             <RadioCard name="traded_before" value="no" label="No" />
           </div>
         </FormField>
-        <FormField label="What town and state do you live in?" required>
+        <FormField label={label("home_city_state")} required>
           <input
             name="home_city_state"
             required
@@ -64,13 +73,13 @@ export default function SignupForm({
             className={portalInputClass}
           />
         </FormField>
-        <FormField label='What is your "home" Dick&apos;s Store where you shop most?' required>
+        <FormField label={label("home_store")} required>
           <textarea name="home_store" rows={2} required className={portalInputClass} />
         </FormField>
       </FormSection>
 
       <FormSection title="Where to remind you">
-        <FormField label="How far are you willing to travel for a trade-in event?" required>
+        <FormField label={label("travel_radius")} required>
           <div className="flex flex-col gap-2.5">
             <RadioCard name="travel_radius" value="25" label="Within 25 miles" />
             <RadioCard name="travel_radius" value="50" label="Within 50 miles" />
@@ -79,7 +88,7 @@ export default function SignupForm({
           </div>
         </FormField>
 
-        <FormField label="Desired Regions for Reminders" required>
+        <FormField label={label("desired_subregions")} required>
           <div className="flex flex-col">
             {subregionOptions.map((option) => (
               <PortalCheckbox key={option} name="desired_subregions" value={option} label={option} />
@@ -97,10 +106,12 @@ export default function SignupForm({
           </div>
         </FormField>
 
-        <FormField label="Are there any locations not listed you would like us to host an event?">
+        <FormField label={label("requested_locations")}>
           <textarea name="requested_locations" rows={2} className={portalInputClass} />
         </FormField>
       </FormSection>
+
+      <CustomQuestionFields questions={customQuestions} />
 
       {!state.ok && state.message && <p className="mb-4 text-sm text-portal-error">{state.message}</p>}
 

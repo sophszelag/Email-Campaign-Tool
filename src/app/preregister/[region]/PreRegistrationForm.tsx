@@ -9,8 +9,11 @@ import {
   PortalButton,
   InfoBox,
   SuccessState,
+  CustomQuestionFields,
   portalInputClass,
 } from "@/components/portal/PortalForm";
+import { PREREGISTER_FIELD_DEFAULTS, getFieldLabel } from "@/lib/form-defaults";
+import type { CustomQuestion } from "@/types";
 
 const initialState: PreRegResult = { ok: false, message: "" };
 
@@ -33,11 +36,21 @@ const ITEM_COUNTS: [string, string][] = [
   ["13+", "13+ items"],
 ];
 
-export default function PreRegistrationForm({ regionId }: { regionId: string }) {
+export default function PreRegistrationForm({
+  regionId,
+  fieldLabels,
+  customQuestions,
+}: {
+  regionId: string;
+  fieldLabels: Record<string, string>;
+  customQuestions: CustomQuestion[];
+}) {
   const [state, formAction, isPending] = useActionState(
     async (_prev: PreRegResult, formData: FormData) => submitPreRegistration(formData),
     initialState
   );
+
+  const label = (key: string) => getFieldLabel(PREREGISTER_FIELD_DEFAULTS, fieldLabels, key);
 
   if (state.ok) {
     return (
@@ -54,14 +67,14 @@ export default function PreRegistrationForm({ regionId }: { regionId: string }) 
 
       <FormSection title="Contact information">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <FormField label="First name" required>
+          <FormField label={label("first_name")} required>
             <input name="first_name" required placeholder="e.g. Parker" className={portalInputClass} />
           </FormField>
-          <FormField label="Last name" required>
+          <FormField label={label("last_name")} required>
             <input name="last_name" required placeholder="e.g. Swartz" className={portalInputClass} />
           </FormField>
         </div>
-        <FormField label="Email" required>
+        <FormField label={label("email")} required>
           <input
             type="email"
             name="email"
@@ -70,13 +83,13 @@ export default function PreRegistrationForm({ regionId }: { regionId: string }) 
             className={portalInputClass}
           />
         </FormField>
-        <FormField label="Phone" required>
+        <FormField label={label("phone")} required>
           <input type="tel" name="phone" required placeholder="(555) 123-4567" className={portalInputClass} />
         </FormField>
       </FormSection>
 
       <FormSection title="Gear information">
-        <FormField label="Sport" required>
+        <FormField label={label("sport")} required>
           <select name="sport" required defaultValue="" className={portalInputClass}>
             <option value="" disabled>
               Select a sport
@@ -88,7 +101,7 @@ export default function PreRegistrationForm({ regionId }: { regionId: string }) 
             ))}
           </select>
         </FormField>
-        <FormField label="Approximate number of items" required>
+        <FormField label={label("item_count")} required>
           <select name="item_count" required defaultValue="" className={portalInputClass}>
             <option value="" disabled>
               Select
@@ -104,7 +117,7 @@ export default function PreRegistrationForm({ regionId }: { regionId: string }) 
 
       <FormSection title="Referral or promo">
         <div className="group/referral">
-          <FormField label="Have a referral code?">
+          <FormField label={label("has_referral_code")}>
             <div className="flex flex-col gap-2.5">
               <RadioCard name="has_referral_code" value="no" label="No, I don't have one" defaultChecked />
               <RadioCard name="has_referral_code" value="yes" label="Yes, I have a code" />
@@ -126,6 +139,8 @@ export default function PreRegistrationForm({ regionId }: { regionId: string }) 
           </div>
         </div>
       </FormSection>
+
+      <CustomQuestionFields questions={customQuestions} />
 
       {!state.ok && state.message && <p className="mb-4 text-sm text-portal-error">{state.message}</p>}
 

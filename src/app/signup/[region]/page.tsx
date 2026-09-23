@@ -23,7 +23,12 @@ export default async function RegionSignupPage({
         Tell us where you are, and we&apos;ll email you when we&apos;re heading your way.
       </p>
 
-      <SignupForm regionId={region.id} subregionOptions={region.subregion_options} />
+      <SignupForm
+        regionId={region.id}
+        subregionOptions={region.subregion_options}
+        fieldLabels={region.signup_form.field_labels}
+        customQuestions={region.signup_form.custom_questions}
+      />
 
       <p className="mt-8 text-center text-xs text-portal-ink-tertiary">
         SidelineSwap · 155 Seaport Blvd, Boston, MA 02210

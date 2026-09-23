@@ -161,6 +161,23 @@ export function SuccessState({
   );
 }
 
+export type CustomQuestionLike = { id: string; label: string; required: boolean };
+
+/** Renders a region's extra custom questions as plain text fields, named `custom_<id>` so the action can pull them back out of the FormData by prefix. */
+export function CustomQuestionFields({ questions }: { questions: CustomQuestionLike[] }) {
+  if (questions.length === 0) return null;
+
+  return (
+    <FormSection title="A few more questions">
+      {questions.map((q) => (
+        <FormField key={q.id} label={q.label} required={q.required}>
+          <input name={`custom_${q.id}`} required={q.required} className={portalInputClass} />
+        </FormField>
+      ))}
+    </FormSection>
+  );
+}
+
 export function EventBadge({
   eyebrow,
   name,

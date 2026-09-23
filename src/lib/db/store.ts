@@ -10,6 +10,7 @@ import type {
   Suppression,
   SuppressionReason,
 } from "@/types";
+import { emptyFormCustomization } from "@/types";
 
 /**
  * Temporary in-process replacement for a real database (Supabase is not
@@ -55,6 +56,8 @@ const SEED_REGIONS: Region[] = [
       "MonkeySports Lodi NJ",
       "NJ Shore Area (Dicks Brick, Dicks Manahawkin)",
     ],
+    signup_form: emptyFormCustomization(),
+    preregister_form: emptyFormCustomization(),
     created_at: new Date().toISOString(),
   },
 ];
