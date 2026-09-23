@@ -7,6 +7,7 @@ const ITEMS = [
   { href: "/dashboard", label: "Campaigns" },
   { href: "/contacts", label: "Contacts" },
   { href: "/reminders", label: "Reminder signups" },
+  { href: "/forms", label: "Form links" },
 ];
 
 export default function NavLinks() {

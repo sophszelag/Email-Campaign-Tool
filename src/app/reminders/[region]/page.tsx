@@ -1,9 +1,7 @@
 import { notFound } from "next/navigation";
-import { headers } from "next/headers";
 import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
 import AppShell from "@/components/AppShell";
-import CopyLinkButton from "@/components/CopyLinkButton";
 
 export const dynamic = "force-dynamic";
 
@@ -17,11 +15,6 @@ export default async function RegionRemindersPage({
 
   const region = store.regions.find((r) => r.slug === slug);
   if (!region) notFound();
-
-  const hdrs = await headers();
-  const origin = `${hdrs.get("x-forwarded-proto") ?? "https"}://${hdrs.get("host")}`;
-  const signupUrl = `${origin}/signup/${region.slug}`;
-  const preRegisterUrl = `${origin}/preregister/${region.slug}`;
 
   const signups = store.reminderSignups
     .filter((s) => s.region_id === region.id)
@@ -37,11 +30,6 @@ export default async function RegionRemindersPage({
       title={region.name}
       subtitle={`${signups.length.toLocaleString()} reminder signups · ${preRegistrations.length.toLocaleString()} pre-registrations`}
     >
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <LinkCard label="Reminder signup form" url={signupUrl} />
-        <LinkCard label="Trade-in pre-registration form" url={preRegisterUrl} />
-      </div>
-
       <section className="mb-8">
         <h2 className="mb-3 text-sm font-bold text-turf-green-500">Reminder signups</h2>
         <div className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">
@@ -130,20 +118,6 @@ export default async function RegionRemindersPage({
         </div>
       </section>
     </AppShell>
-  );
-}
-
-function LinkCard({ label, url }: { label: string; url: string }) {
-  return (
-    <div className="rounded-[10px] border bg-white p-5 shadow-sm">
-      <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
-        {label}
-      </div>
-      <div className="flex flex-wrap items-center gap-3">
-        <code className="break-all rounded-md bg-offwhite px-3 py-2 text-xs text-turf-green-500">{url}</code>
-        <CopyLinkButton text={url} />
-      </div>
-    </div>
   );
 }
 
