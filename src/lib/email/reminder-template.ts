@@ -1,0 +1,163 @@
+import type { ReminderEmailSettings } from "@/types";
+
+const MAILING_ADDRESS = "SidelineSwap · 155 Seaport Blvd, Boston, MA 02210";
+
+// The exact white-fill wordmark from sidelineswap-monkeysports-woodbridge-invite.html,
+// sized for the green header band. Same asset the old campaign email used.
+const HEADER_LOGO_SVG = `<svg width="184" height="34" viewBox="0 0 871 161" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_511_97)"><path fill-rule="evenodd" clip-rule="evenodd" d="M397.1 148.4C397.1 150.4 396.7 152 396 153C395.3 154.1 394.3 154.6 392.9 154.6C390.1 154.6 388.6 152.5 388.6 148.2V126.1H382.4V147.8C382.4 151.9 383.3 155 385 157.1C386.7 159.2 389.3 160.2 392.6 160.2C396 160.2 398.6 159.1 400.4 157C402.2 154.9 403.1 151.8 403.1 147.8V126H396.9V148.4H397.1ZM337.1 140.7C335.5 139.6 334.3 138.7 333.7 137.8C333 137 332.7 136 332.7 134.8C332.7 133.6 333 132.7 333.5 132.1C334 131.5 334.8 131.1 335.8 131.1C336.7 131.1 337.6 131.3 338.4 131.6C339.2 131.9 340 132.3 340.7 132.8L342.8 127.8C340.4 126.4 337.9 125.6 335.4 125.6C332.7 125.6 330.5 126.4 328.9 128.1C327.3 129.8 326.5 132.1 326.5 135C326.5 136.5 326.7 137.8 327.1 139C327.5 140.1 328.1 141.2 328.8 142.1C329.5 143 330.6 144 332.1 145C333.8 146.1 334.9 147.2 335.7 148.1C336.4 149 336.8 150.1 336.8 151.2C336.8 152.3 336.5 153.2 335.9 153.9C335.3 154.6 334.4 154.9 333.2 154.9C331.1 154.9 328.8 154.1 326.3 152.4V158.6C328.4 159.8 330.8 160.3 333.8 160.3C336.8 160.3 339.1 159.5 340.7 157.8C342.3 156.1 343.1 153.7 343.1 150.6C343.1 148.6 342.7 146.9 341.8 145.4C340.8 143.7 339.2 142.2 337.1 140.7ZM307.6 159.7H322.8V154.2H313.9V144.9H322.2V139.5H313.9V131.5H322.8V126.1H307.6V159.7ZM372.6 142.1V141.9C374.1 141.6 375.2 140.8 376.1 139.5C376.9 138.2 377.4 136.6 377.4 134.6C377.4 131.6 376.6 129.5 375 128.1C373.4 126.7 370.9 126.1 367.4 126.1H358.8V159.7H368.9C371.7 159.7 374 158.8 375.6 157.1C377.2 155.4 378.1 153 378.1 149.9C378.1 147.7 377.7 146 376.8 144.7C375.9 143.5 374.5 142.6 372.6 142.1ZM364.6 131.5H367.2C368.5 131.5 369.5 131.8 370.1 132.4C370.7 133 371 134 371 135.4C371 136.8 370.7 137.8 370.2 138.6C369.7 139.3 368.7 139.7 367.4 139.7H364.5V131.5H364.6ZM370.7 153.1C370.1 153.9 369.1 154.3 367.8 154.3H364.6V144.9H367.7C370.3 144.9 371.7 146.4 371.7 149.4C371.6 151 371.3 152.3 370.7 153.1ZM102.2 159.7H117.4V154.2H108.5V144.9H116.8V139.5H108.5V131.5H117.4V126.1H102.2V159.7ZM145.8 159.7H161V154.2H152.1V144.9H160.4V139.5H152.1V131.5H161V126.1H145.8V159.7ZM140.6 136.1C140.6 132.7 139.8 130.2 138.1 128.6C136.4 127 133.9 126.1 130.4 126.1H122.2V159.7H128.5V146.6H130.7L136 159.7H142.7L136.2 144.9C139.2 143.3 140.6 140.3 140.6 136.1ZM133.3 140C132.7 140.8 131.6 141.3 130.1 141.3H128.5V131.5H130.1C131.5 131.5 132.6 131.9 133.3 132.6C134 133.3 134.3 134.6 134.3 136.3C134.3 137.9 134 139.2 133.3 140ZM417.2 139.4L412.7 126.1H406.1L414.1 146.5V159.7H420.3V146.2L428.3 126H421.7L417.2 139.4ZM284.8 131.6H291.2V159.7H297.4V131.6H303.8V126.1H284.7V131.6H284.8ZM63 145.1C62.8 146.6 62.4 149.6 61.8 154.1C61.5 151 61.1 148.1 60.7 145.2L57.1 126.1H50.6L47 145.2C46.7 147 46.3 149.9 45.9 154C45.4 149.9 45 147 44.7 145L41.7 126H35.6L41.7 159.6H49.5L52.7 142.1L53.6 135.2L53.8 133.5C54 136.8 54.4 139.6 54.9 142L58.2 159.6H66L72.1 126H65.9L63 145.1ZM90 139.5H81.7V126.1H75.4V159.7H81.7V145H90V159.8H96.3V126.2H90V139.5ZM267.1 159.7H282.3V154.2H273.4V144.9H281.7V139.5H273.4V131.5H282.3V126.1H267.1V159.7ZM254.4 126.1H248.1V159.7H263V154.2H254.3V126.1H254.4ZM182.9 126L174.6 159.8H180.9L182.8 151.3H191.6L193.5 159.8H199.8L191.4 126H182.9ZM184 145.7C185.3 140 186.1 136.4 186.4 134.8C186.7 133.2 187 131.8 187.2 130.4C187.3 131 187.5 132.3 187.9 134.2C188.3 136.1 188.5 137.3 188.6 137.8L190.4 145.6H184V145.7ZM198.8 131.6H205.2V159.7H211.4V131.6H217.8V126.1H198.7V131.6H198.8ZM236 139.5H227.7V126.1H221.4V159.7H227.7V145H236V159.8H242.3V126.2H236V139.5ZM671.6 159.7H686.8V154.2H677.9V144.9H686.2V139.5H677.9V131.5H686.8V126.1H671.6V159.7ZM692.8 159.7H698.7V126.1H692.8V159.7ZM724.1 136.1C724.1 132.7 723.3 130.2 721.6 128.6C719.9 127 717.4 126.1 713.9 126.1H705.7V159.7H712V146.6H714.2L719.5 159.7H726.2L719.7 144.9C722.7 143.3 724.1 140.3 724.1 136.1ZM716.9 140C716.3 140.8 715.2 141.3 713.7 141.3H712.1V131.5H713.7C715.1 131.5 716.2 131.9 716.9 132.6C717.6 133.3 717.9 134.6 717.9 136.3C717.8 137.9 717.5 139.2 716.9 140ZM659.4 139.5H651.1V126.1H644.8V159.7H651.1V145H659.4V159.8H665.7V126.2H659.4V139.5ZM622.2 131.6H628.6V159.7H634.8V131.6H641.2V126.1H622.1V131.6H622.2ZM830.2 136.1C830.2 132.7 829.4 130.2 827.7 128.6C826 127 823.5 126.1 820 126.1H811.8V159.7H818.1V146.6H820.3L825.6 159.7H832.3L825.8 144.9C828.7 143.3 830.2 140.3 830.2 136.1ZM822.9 140C822.3 140.8 821.2 141.3 819.7 141.3H818.1V131.5H819.7C821.1 131.5 822.2 131.9 822.9 132.6C823.6 133.3 823.9 134.6 823.9 136.3C823.9 137.9 823.5 139.2 822.9 140ZM751.2 146.6H755.4V154.3C754.4 154.6 753.3 154.7 752.3 154.7C750.4 154.7 748.9 153.7 747.9 151.7C746.9 149.7 746.4 146.8 746.4 143C746.4 139.3 747.1 136.4 748.5 134.3C749.9 132.2 751.8 131.1 754.1 131.1C755.8 131.1 757.5 131.7 759.4 132.8L761.4 127.7C759 126.3 756.4 125.6 753.7 125.6C749.4 125.6 746 127.1 743.6 130.2C741.2 133.3 740 137.5 740 142.9C740 148.5 741.1 152.8 743.2 155.8C745.3 158.8 748.3 160.3 752.2 160.3C755.5 160.3 758.6 159.7 761.5 158.4V141.1H751.2V146.6ZM792 126L783.7 159.8H790L791.9 151.3H800.7L802.6 159.8H808.9L800.5 126H792ZM793.1 145.7C794.4 140 795.2 136.4 795.5 134.8C795.8 133.2 796.1 131.8 796.3 130.4C796.4 131 796.6 132.3 797 134.2C797.4 136.1 797.6 137.3 797.7 137.8L799.5 145.6H793.1V145.7ZM766.6 159.7H781.8V154.2H772.9V144.9H781.2V139.5H772.9V131.5H781.8V126.1H766.6V159.7ZM448.2 126L439.9 159.8H446.2L448.1 151.3H456.9L458.8 159.8H465.1L456.7 126H448.2ZM449.3 145.7C450.6 140 451.4 136.4 451.7 134.8C452 133.2 452.3 131.8 452.5 130.4C452.6 131 452.8 132.3 453.2 134.2C453.6 136.1 453.8 137.3 453.9 137.8L455.7 145.6H449.3V145.7ZM554.9 159.7H570.1V154.2H561.2V144.9H569.5V139.5H561.2V131.5H570.1V126.1H554.9V159.7ZM544.9 140.7C543.3 139.6 542.1 138.7 541.5 137.8C540.8 137 540.5 136 540.5 134.8C540.5 133.6 540.8 132.7 541.3 132.1C541.8 131.4 542.6 131.1 543.6 131.1C544.5 131.1 545.4 131.3 546.2 131.6C547 131.9 547.8 132.3 548.5 132.8L550.6 127.8C548.2 126.4 545.7 125.6 543.2 125.6C540.5 125.6 538.3 126.4 536.7 128.1C535.1 129.8 534.3 132.1 534.3 135C534.3 136.5 534.5 137.8 534.9 139C535.3 140.1 535.9 141.2 536.6 142.1C537.3 143 538.4 144 539.9 145C541.6 146.1 542.7 147.2 543.5 148.1C544.2 149 544.6 150.1 544.6 151.2C544.6 152.3 544.3 153.2 543.7 153.9C543.1 154.6 542.2 154.9 541 154.9C538.9 154.9 536.6 154.1 534.1 152.4V158.6C536.2 159.8 538.6 160.3 541.6 160.3C544.6 160.3 546.9 159.5 548.5 157.8C550.1 156.1 550.9 153.7 550.9 150.6C550.9 148.6 550.5 146.9 549.6 145.4C548.6 143.7 547.1 142.2 544.9 140.7ZM581.3 126.1H575V159.7H589.9V154.2H581.2V126.1H581.3ZM506.5 126.1H497.5V159.7H505.7C509.9 159.7 513.2 158.2 515.5 155.3C517.8 152.4 518.9 148.1 518.9 142.6C518.9 137.4 517.8 133.3 515.6 130.4C513.4 127.5 510.4 126.1 506.5 126.1ZM510.9 151.4C509.8 153.3 508.1 154.3 505.8 154.3H503.8V131.5H506.3C510.4 131.5 512.5 135.3 512.5 142.8C512.5 146.6 512 149.5 510.9 151.4ZM485.8 144.5C485.8 146.7 485.9 148.6 486.2 150.3H486L475.7 126.2H468V159.8H473.8V141.4C473.8 139.3 473.6 137.3 473.2 135.4H473.5L483.9 159.8H491.5V126.2H485.7V144.5H485.8ZM600.2 126.1H593.9V159.7H608.8V154.2H600.1V126.1H600.2ZM191 95.1C194.1 91.2 195.6 85.3 195.6 77.5V41.8C195.6 34.1 194 28.3 191 24.4C187.9 20.5 183.1 18.5 176.6 18.5H122.4V101H176.6C183.2 101 187.9 99 191 95.1ZM141 78.5V41.4H174.8C177.1 41.4 178.2 42.2 178.2 43.8V75.9C178.2 77.6 177.1 78.5 174.8 78.5H141ZM659.1 100.7L671.7 67.2L684.3 100.7H707.7L738.9 18.5H716.9L696 75.1L675.2 18.5H653.2L661.2 39.9L647.3 75.2L626.5 18.6H604.5L635.4 100.8H659.1V100.7ZM327 78H290.4V18.5H270.8V101H327V78ZM507.3 78.8H464.7V40.7H507.3V18.5H445V101H507.3V78.8ZM497.8 69.7V50H468.2V69.7H497.8ZM419.9 73.5L389.1 18.5H359.5V100.7H378.3V45.5L409.2 100.7H438.7V18.5H420V73.5H419.9ZM762 50.6C762.7 52.4 763.3 54.2 764 55.9C764.6 57.6 765.3 59.3 766 61.1C766.7 62.9 767.4 64.8 768.1 66.8H758.8L750.8 87.6H775.8L780.7 101H802.7L771.9 18.5H748.5L717 101L739.2 100.6L759.7 44.7C760.6 46.9 761.3 48.8 762 50.6ZM599 100.4C602.6 95 604.5 86.4 604.5 74.6C604.5 66.4 603.5 59.3 601.5 53.5C601.5 53.5 598.8 47.5 595.4 45.2C592.8 43.3 589.7 42.2 586.2 41.8C585.5 41.7 563.7 41.6 563.7 41.6V49.8L527.8 35.3L563.7 19.7V28.3H602L601.7 18.6C601.7 18.6 601.3 11.8 596.7 6.7C592.1 1.6 585.4 1.4 585.4 1.4L534.1 0.900002C527 0.900002 521.8 3.8 518.7 9.5C515.6 15.2 514 23.8 514 35.3C514 39.9 514.3 43.9 514.8 47.4C515.4 50.9 516.2 53.8 517.4 56.2C520.5 62.7 525.8 66.2 532.9 66.9C540.1 67.6 554.5 68 554.5 68V60L590.4 74.4L554.5 90V81.2H515.8V91.4C517.1 102.4 524.2 107.8 532.4 108.6H581.4C589.5 108.5 595.4 105.8 599 100.4ZM85 100.4C88.6 95 90.5 86.4 90.5 74.6C90.5 66.4 89.5 59.3 87.5 53.5L87.4 53.3C86 49.8 84 47 81.4 45.2C78.8 43.3 75.7 42.2 72.2 41.8C71.5 41.7 49.7 41.6 49.7 41.6V49.8L13.8 35.3L49.7 19.7V28.3H88L87.7 18.6C87.7 18.6 87.3 11.8 82.7 6.7C78.1 1.6 71.4 1.4 71.4 1.4L20.1 0.900002C13 0.900002 7.8 3.8 4.7 9.5C1.6 15.2 0 23.8 0 35.3C0 39.9 0.300003 43.9 0.800003 47.4C1.4 50.9 2.2 53.8 3.4 56.2C6.5 62.7 11.8 66.2 18.9 66.9C26.1 67.6 40.5 68 40.5 68V60L76.4 74.4L40.5 90V81.2H1.7V91.4C3 102.4 10.1 107.8 18.3 108.6H67.3C75.5 108.5 81.4 105.8 85 100.4ZM869.3 32.1C868.5 28.7 867.2 26 865.4 24C863.6 22 861.4 20.6 858.6 19.7C855.8 18.9 852.5 18.5 848.6 18.5H803.7V101H823.4V58.1L837.2 75.9H852C858.7 75.9 863.5 73.4 866.3 68.4C869.1 63.4 870.5 55.5 870.5 44.9C870.5 39.7 870.1 35.5 869.3 32.1ZM850.6 52.9C849.5 54 848.3 54.6 846.9 54.6H823.4V42.2H847.2C848.4 42.2 849.6 42.8 850.6 44C851.6 45.2 852.2 46.5 852.3 48.1C852.2 50.1 851.7 51.8 850.6 52.9ZM116 18.5H96.3V101H116V18.5ZM333.4 101H353V18.5H333.3V101H333.4ZM202.1 101H264.4V78.7H221.8V40.6H264.4V18.5H202.1V101ZM254.8 69.7V50H225.2V69.7H254.8Z" fill="white"/></g><defs><clipPath id="clip0_511_97"><rect width="871" height="161" fill="white"/></clipPath></defs></svg>`;
+
+export type ReminderEmailMergeData = {
+  full_name: string;
+  event_name: string;
+  event_date: string;
+  event_venue: string;
+  preregister_link: string;
+};
+
+// Sample data for the settings-page preview only — real sending (not
+// wired up yet) would substitute the actual signup + matched event.
+export const SAMPLE_MERGE_DATA: ReminderEmailMergeData = {
+  full_name: "Jordan",
+  event_name: "South NJ / Philadelphia Trade-In Event",
+  event_date: "Saturday, June 14",
+  event_venue: "Dick's Sporting Goods – Cherry Hill",
+  preregister_link: "https://example.com/preregister/south-nj-philadelphia",
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Coordinator-authored text is escaped FIRST (it's untrusted input being
+// rendered as HTML), then merge tokens are swapped in — the replacement
+// values are escaped too, so this is safe even once real customer/event
+// data flows through it later.
+function renderMergeText(raw: string, data: ReminderEmailMergeData): string {
+  return escapeHtml(raw)
+    .replaceAll("{{full_name}}", escapeHtml(data.full_name))
+    .replaceAll("{{event_name}}", escapeHtml(data.event_name))
+    .replaceAll("{{event_date}}", escapeHtml(data.event_date))
+    .replaceAll("{{event_venue}}", escapeHtml(data.event_venue))
+    .replaceAll("{{preregister_link}}", escapeHtml(data.preregister_link));
+}
+
+function renderParagraphs(raw: string, data: ReminderEmailMergeData): string {
+  return renderMergeText(raw, data)
+    .split(/\n{2,}/)
+    .map((para) => `<p class="body-copy">${para.replace(/\n/g, "<br/>")}</p>`)
+    .join("");
+}
+
+/**
+ * Renders the reminder email's full HTML for preview. The visual design
+ * here (colors, layout, header/footer) is fixed and shared across every
+ * region — only the content passed in `settings` varies. Design/palette
+ * is the same turf-green/green tokens as the product UI and the original
+ * trade-in invite mockup, since this is the same SidelineSwap brand.
+ *
+ * This uses <style> + classes rather than inlined CSS, same tradeoff as
+ * the old campaign template: fine for Gmail/Apple Mail, but Outlook
+ * desktop strips <style> blocks. Worth running through an inliner (e.g.
+ * MJML, Juice) before this is wired up to a real send.
+ *
+ * Known gap: no unsubscribe link. The suppression-list mechanism was
+ * removed along with the old email-sending feature, so before this ever
+ * sends to real customers it needs an unsubscribe mechanism reintroduced.
+ */
+export function renderReminderEmailHtml(
+  settings: ReminderEmailSettings,
+  data: ReminderEmailMergeData = SAMPLE_MERGE_DATA
+): string {
+  const subject = renderMergeText(settings.subject, data);
+  const headline = renderMergeText(settings.headline, data);
+  const introHtml = renderParagraphs(settings.intro, data);
+  const buttonLabel = renderMergeText(settings.button_label, data);
+  const closingHtml = renderParagraphs(settings.closing, data);
+  const preregisterLink = escapeHtml(data.preregister_link);
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${subject}</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    background: #F1EFE8;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .email { max-width: 600px; margin: 0 auto; background: #FFFFFF; box-shadow: 0 4px 20px rgba(37, 60, 50, 0.08); overflow: hidden; }
+  .header { background: #02C874; padding: 22px 32px; }
+  .header-logo { display: block; height: 34px; width: auto; }
+  .hero { background: #253C32; padding: 48px 32px 44px; text-align: center; }
+  .eyebrow { font-weight: 700; font-size: 12px; letter-spacing: 0.12em; color: #02C874; text-transform: uppercase; margin: 0 0 14px; }
+  .hero-headline { font-weight: 900; font-size: 38px; line-height: 1.1; letter-spacing: -0.02em; color: #FFFFFF; margin: 0; }
+  .hero-sub { font-weight: 500; font-size: 15px; color: #CCDCD4; margin: 16px 0 0; letter-spacing: 0.02em; }
+  .body { padding: 40px 40px 8px; }
+  .body-copy { font-weight: 400; font-size: 16px; line-height: 1.6; color: #171B1F; margin: 0 0 20px; }
+  .details { background: #CCDCD4; padding: 22px 24px; margin: 4px 0 28px; border-radius: 4px; }
+  .details-eyebrow { font-weight: 700; font-size: 11px; letter-spacing: 0.14em; color: #253C32; text-transform: uppercase; margin: 0 0 12px; }
+  .details-row { font-size: 15px; color: #253C32; padding: 6px 0; line-height: 1.5; }
+  .details-row .label { font-weight: 700; display: inline-block; min-width: 60px; }
+  .cta-wrap { text-align: center; padding: 8px 0 28px; }
+  .cta { display: inline-block; background: #253C32; color: #FFFFFF !important; text-decoration: none; font-weight: 700; font-size: 15px; letter-spacing: 0.02em; padding: 16px 40px; border-radius: 4px; }
+  .divider { height: 1px; background: #E5E7E4; margin: 8px 40px 0; }
+  .tagline-block { padding: 28px 40px 24px; text-align: center; }
+  .tagline { font-weight: 500; font-style: italic; font-size: 14px; color: #253C32; margin: 0; letter-spacing: 0.01em; }
+  .footer { background: #253C32; padding: 28px 40px; text-align: center; }
+  .footer-copy { font-weight: 400; font-size: 12px; line-height: 1.7; color: #CCDCD4; margin: 0; }
+  @media (max-width: 620px) {
+    body { padding: 16px 0; }
+    .header { padding: 18px 24px; }
+    .header-logo { height: 28px; }
+    .hero { padding: 36px 24px 32px; }
+    .hero-headline { font-size: 28px; }
+    .body { padding: 30px 24px 8px; }
+    .body-copy { font-size: 15px; }
+    .footer { padding: 24px; }
+    .cta { padding: 14px 28px; font-size: 14px; }
+    .details { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="email">
+    <div class="header">${HEADER_LOGO_SVG}</div>
+    <div class="hero">
+      <p class="eyebrow">Trade-in event reminder</p>
+      <h1 class="hero-headline">${headline}</h1>
+      <p class="hero-sub">${escapeHtml(data.event_date)} · ${escapeHtml(data.event_venue)}</p>
+    </div>
+    <div class="body">
+      ${introHtml}
+      <div class="details">
+        <p class="details-eyebrow">Event details</p>
+        <div class="details-row"><span class="label">When</span> ${escapeHtml(data.event_date)}</div>
+        <div class="details-row"><span class="label">Where</span> ${escapeHtml(data.event_venue)}</div>
+      </div>
+      <div class="cta-wrap">
+        <a href="${preregisterLink}" class="cta">${buttonLabel} →</a>
+      </div>
+      ${closingHtml}
+      <div class="divider"></div>
+    </div>
+    <div class="tagline-block">
+      <p class="tagline">Where athletes buy and sell their gear.</p>
+    </div>
+    <div class="footer">
+      <p class="footer-copy">${MAILING_ADDRESS}</p>
+    </div>
+  </div>
+</body>
+</html>`;
+}

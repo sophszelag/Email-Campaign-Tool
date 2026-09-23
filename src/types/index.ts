@@ -18,14 +18,20 @@ export function emptyFormCustomization(): FormCustomization {
   return { field_labels: {}, custom_questions: [] };
 }
 
-// A region's reminder-email settings: what the automated "we're headed
-// your way" email says, and how many days before an event it goes out.
-// Merge fields (e.g. {{full_name}}) are plain text placeholders — nothing
-// renders or sends them yet, see reminder_email_defaults.ts for the full
-// list and why sending isn't wired up.
+// A region's reminder-email settings: the editable content of the
+// automated "we're headed your way" email, and how many days before an
+// event it goes out. The email's visual design (colors, layout, logo,
+// footer) is fixed — only these content fields are per-region. Merge
+// fields (e.g. {{full_name}}) are plain text placeholders — nothing
+// actually substitutes them yet outside of the settings-page preview
+// (sample data), see reminder-email-defaults.ts for the full list and
+// why real sending isn't wired up.
 export type ReminderEmailSettings = {
   subject: string;
-  body: string;
+  headline: string;
+  intro: string;
+  button_label: string;
+  closing: string;
   send_days_before_event: number;
 };
 
