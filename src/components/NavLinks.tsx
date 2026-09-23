@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const ITEMS = [
   { href: "/reminders", label: "Reminder signups" },
   { href: "/forms", label: "Form links" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export default function NavLinks() {

@@ -18,6 +18,17 @@ export function emptyFormCustomization(): FormCustomization {
   return { field_labels: {}, custom_questions: [] };
 }
 
+// A region's reminder-email settings: what the automated "we're headed
+// your way" email says, and how many days before an event it goes out.
+// Merge fields (e.g. {{full_name}}) are plain text placeholders — nothing
+// renders or sends them yet, see reminder_email_defaults.ts for the full
+// list and why sending isn't wired up.
+export type ReminderEmailSettings = {
+  subject: string;
+  body: string;
+  send_days_before_event: number;
+};
+
 // A geographic area SidelineSwap runs trade-in events in — each gets its
 // own public signup form and (eventually) its own reminder cadence.
 export type Region = {
@@ -28,6 +39,7 @@ export type Region = {
   subregion_options: string[];
   signup_form: FormCustomization;
   preregister_form: FormCustomization;
+  reminder_email: ReminderEmailSettings;
   created_at: string;
 };
 
