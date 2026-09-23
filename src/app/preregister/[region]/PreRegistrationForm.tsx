@@ -6,6 +6,7 @@ import {
   FormSection,
   FormField,
   RadioCard,
+  PortalCheckbox,
   PortalButton,
   InfoBox,
   SuccessState,
@@ -90,16 +91,11 @@ export default function PreRegistrationForm({
 
       <FormSection title="Gear information">
         <FormField label={label("sport")} required>
-          <select name="sport" required defaultValue="" className={portalInputClass}>
-            <option value="" disabled>
-              Select a sport
-            </option>
-            {SPORTS.map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
+          <div className="flex flex-col">
+            {SPORTS.map(([value, sportLabel]) => (
+              <PortalCheckbox key={value} name="sport" value={value} label={sportLabel} />
             ))}
-          </select>
+          </div>
         </FormField>
         <FormField label={label("item_count")} required>
           <select name="item_count" required defaultValue="" className={portalInputClass}>

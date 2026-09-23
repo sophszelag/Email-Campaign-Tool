@@ -12,10 +12,11 @@ const preRegSchema = z.object({
   last_name: z.string().trim().min(1, "Last name is required"),
   email: z.string().trim().min(1, "Email is required"),
   phone: z.string().trim().min(1, "Phone is required"),
-  sport: z.enum(
-    ["baseball", "basketball", "football", "hockey", "lacrosse", "soccer", "softball", "tennis", "other"],
-    { message: "Sport is required" }
-  ),
+  sport: z
+    .array(
+      z.enum(["baseball", "basketball", "football", "hockey", "lacrosse", "soccer", "softball", "tennis", "other"])
+    )
+    .min(1, "Select at least one sport"),
   item_count: z.enum(["1-3", "4-7", "8-12", "13+"], { message: "Item count is required" }),
   has_referral_code: z.enum(["yes", "no"], { message: "Please answer this question" }),
   referral_code: z.string().trim().optional(),
@@ -30,7 +31,7 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
     last_name: formData.get("last_name"),
     email: formData.get("email"),
     phone: formData.get("phone"),
-    sport: formData.get("sport"),
+    sport: formData.getAll("sport"),
     item_count: formData.get("item_count"),
     has_referral_code: formData.get("has_referral_code"),
     referral_code: formData.get("referral_code"),
@@ -73,7 +74,7 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
     last_name: parsed.data.last_name,
     email,
     phone: parsed.data.phone,
-    sport: parsed.data.sport as Sport,
+    sports: parsed.data.sport as Sport[],
     item_count: parsed.data.item_count as ItemCount,
     has_referral_code: hasReferralCode,
     referral_code: hasReferralCode ? referralCode : null,

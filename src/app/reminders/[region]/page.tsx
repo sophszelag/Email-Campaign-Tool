@@ -98,7 +98,7 @@ export default async function RegionRemindersPage({
                   </td>
                   <td className="px-4 py-3 text-turf-green-500">{p.email}</td>
                   <td className="px-4 py-3 text-turf-green-500">{p.phone}</td>
-                  <td className="px-4 py-3 capitalize text-turf-green-500">{p.sport}</td>
+                  <td className="px-4 py-3 capitalize text-turf-green-500">{p.sports.join(", ")}</td>
                   <td className="px-4 py-3 text-turf-green-500">{p.item_count}</td>
                   <td className="px-4 py-3 text-turf-green-500">{p.referral_code ?? "—"}</td>
                   <td className="px-4 py-3 text-slate-green-500">

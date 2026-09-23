@@ -154,7 +154,8 @@ export type PreRegistration = {
   last_name: string;
   email: string;
   phone: string;
-  sport: Sport;
+  /** Customers often bring gear from more than one sport, so this is multi-select. */
+  sports: Sport[];
   item_count: ItemCount;
   has_referral_code: boolean;
   referral_code: string | null;

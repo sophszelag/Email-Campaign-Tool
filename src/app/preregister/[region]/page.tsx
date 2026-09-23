@@ -21,7 +21,8 @@ export default async function PreRegisterPage({
         Register for trade-in
       </h1>
       <p className="mb-8 text-[15px] leading-relaxed text-portal-ink-secondary">
-        Drop off your gear and register to get a quote. Choose to accept remotely or return to the table.
+        Pre-register before you arrive to skip the line — just drop off your gear and go when you get
+        to the event.
       </p>
 
       {/*
