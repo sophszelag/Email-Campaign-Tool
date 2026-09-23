@@ -115,6 +115,23 @@ export default async function RegionSettingsPage({
               />
             </div>
 
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                Reply-to email (coordinator&apos;s inbox)
+              </label>
+              <input
+                type="email"
+                name="reply_to_email"
+                placeholder="coordinator@gmail.com"
+                defaultValue={region.reminder_email.reply_to_email}
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              />
+              <p className="text-xs text-slate-green-500">
+                The email will still send from a branded SidelineSwap address, but when a customer
+                hits reply, it&apos;ll land here instead.
+              </p>
+            </div>
+
             <button
               type="submit"
               className="rounded-md bg-turf-green-500 px-4 py-2 text-sm font-bold text-white hover:bg-[#18201D]"

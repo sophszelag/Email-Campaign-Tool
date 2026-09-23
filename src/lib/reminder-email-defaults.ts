@@ -22,5 +22,6 @@ export function defaultReminderEmailSettings(): ReminderEmailSettings {
     button_label: "Pre-Register Now",
     closing: "See you there!\nSidelineSwap Events",
     send_days_before_event: 10,
+    reply_to_email: "",
   };
 }

@@ -33,6 +33,8 @@ export type ReminderEmailSettings = {
   button_label: string;
   closing: string;
   send_days_before_event: number;
+  /** Reply-To header for the send (once wired up) — the coordinator's own inbox, so a customer's reply lands there directly rather than at the no-reply sending address. */
+  reply_to_email: string;
 };
 
 // A geographic area SidelineSwap runs trade-in events in — each gets its
