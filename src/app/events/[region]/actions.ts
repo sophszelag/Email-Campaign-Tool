@@ -3,7 +3,92 @@
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/session";
 import { store, newId } from "@/lib/db/store";
-import type { EventStatus } from "@/types";
+import { parseEventsCsv } from "@/lib/events-csv";
+import type { EventStatus, TradeInEvent } from "@/types";
+
+export type UploadEventsResult = { ok: boolean; message: string };
+
+/**
+ * The primary way events get into a region's calendar: sync the whole
+ * list to match a weekly CSV export. Matches existing events to rows by
+ * (venue, start date) so an event that persists week to week keeps its
+ * id (any pre-registration linked to it stays linked) — a matched event
+ * is updated in place, a new row becomes a new event, and any existing
+ * event with no matching row is removed, since dropping it from the
+ * spreadsheet means it's off the calendar.
+ */
+export async function uploadEventsCsv(
+  regionId: string,
+  _prev: UploadEventsResult,
+  formData: FormData
+): Promise<UploadEventsResult> {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  if (!region) return { ok: false, message: "Region not found." };
+
+  const file = formData.get("csv_file");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, message: "Choose a CSV file first." };
+  }
+
+  const text = await file.text();
+  const { rows, errors } = parseEventsCsv(text, region.subregion_options);
+
+  if (rows.length === 0) {
+    return { ok: false, message: `No valid rows found in that file. ${errors.join(" ")}`.trim() };
+  }
+
+  const existing = store.events.filter((e) => e.region_id === region.id);
+  const existingByKey = new Map(existing.map((e) => [`${e.venue.trim().toLowerCase()}|${e.start_date}`, e]));
+  const seenIds = new Set<string>();
+  const synced: TradeInEvent[] = [];
+  let added = 0;
+  let updated = 0;
+
+  for (const row of rows) {
+    const key = `${row.venue.trim().toLowerCase()}|${row.start_date}`;
+    const match = existingByKey.get(key);
+
+    if (match) {
+      match.city_state = row.city_state;
+      match.end_date = row.end_date;
+      match.hours = row.hours;
+      match.subregion = row.subregion;
+      match.status = row.status;
+      synced.push(match);
+      seenIds.add(match.id);
+      updated++;
+    } else {
+      const created: TradeInEvent = {
+        id: newId(),
+        region_id: region.id,
+        venue: row.venue,
+        city_state: row.city_state,
+        start_date: row.start_date,
+        end_date: row.end_date,
+        hours: row.hours,
+        subregion: row.subregion,
+        status: row.status,
+        created_at: new Date().toISOString(),
+      };
+      synced.push(created);
+      seenIds.add(created.id);
+      added++;
+    }
+  }
+
+  const removed = existing.filter((e) => !seenIds.has(e.id)).length;
+
+  store.events = [...store.events.filter((e) => e.region_id !== region.id), ...synced];
+
+  revalidatePath(`/events/${region.slug}`);
+  revalidatePath(`/preregister/${region.slug}`);
+
+  const summary = `Synced: ${added} added, ${updated} updated, ${removed} removed.`;
+  const errorNote = errors.length > 0 ? ` ${errors.length} row(s) skipped — ${errors.join(" ")}` : "";
+
+  return { ok: true, message: summary + errorNote };
+}
 
 function readEventFields(formData: FormData) {
   const subregion = (formData.get("subregion") as string | null)?.trim() || null;
@@ -15,30 +100,7 @@ function readEventFields(formData: FormData) {
   return { subregion, venue, city_state, start_date, end_date, hours };
 }
 
-export async function addEvent(regionId: string, formData: FormData) {
-  await requireSession();
-  const region = store.regions.find((r) => r.id === regionId);
-  if (!region) return;
-
-  const fields = readEventFields(formData);
-  if (!fields.venue || !fields.city_state || !fields.start_date) return;
-
-  store.events.push({
-    id: newId(),
-    region_id: region.id,
-    subregion: fields.subregion,
-    venue: fields.venue,
-    city_state: fields.city_state,
-    start_date: fields.start_date,
-    end_date: fields.end_date,
-    hours: fields.hours,
-    status: "upcoming",
-    created_at: new Date().toISOString(),
-  });
-
-  revalidatePath(`/events/${region.slug}`);
-}
-
+/** For one-off corrections between weekly uploads — the CSV upload is the primary way events get added. */
 export async function updateEvent(regionId: string, eventId: string, formData: FormData) {
   await requireSession();
   const region = store.regions.find((r) => r.id === regionId);
@@ -60,6 +122,7 @@ export async function updateEvent(regionId: string, eventId: string, formData: F
 
   revalidatePath(`/events/${region.slug}`);
   revalidatePath(`/events/${region.slug}/${event.id}`);
+  revalidatePath(`/preregister/${region.slug}`);
 }
 
 export async function deleteEvent(regionId: string, eventId: string) {
@@ -70,4 +133,5 @@ export async function deleteEvent(regionId: string, eventId: string) {
   store.events = store.events.filter((e) => !(e.id === eventId && e.region_id === regionId));
 
   revalidatePath(`/events/${region.slug}`);
+  revalidatePath(`/preregister/${region.slug}`);
 }

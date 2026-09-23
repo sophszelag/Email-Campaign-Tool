@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
 import AppShell from "@/components/AppShell";
-import { addEvent } from "./actions";
+import UploadEventsForm from "./UploadEventsForm";
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +24,6 @@ export default async function RegionEventsPage({
   const region = store.regions.find((r) => r.slug === slug);
   if (!region) notFound();
 
-  const boundAdd = addEvent.bind(null, region.id);
-
   const events = store.events
     .filter((e) => e.region_id === region.id)
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
@@ -34,98 +32,26 @@ export default async function RegionEventsPage({
     <AppShell userEmail={session.user!.email!} title="Events" subtitle={region.name}>
       <div className="space-y-6">
         <section className="rounded-[10px] border bg-white p-5 shadow-sm">
-          <h2 className="mb-1 text-sm font-bold text-turf-green-500">Add an event</h2>
+          <h2 className="mb-1 text-sm font-bold text-turf-green-500">Upload weekly events CSV</h2>
           <p className="mb-4 text-[13px] text-slate-green-500">
-            Once added, edit or cancel it any time — no need to re-upload anything when a date
-            changes.
+            The calendar below syncs to whatever&apos;s in the file: rows are added or updated by
+            matching venue + date, and any event no longer in the file is removed. No manual
+            entering of events needed — just upload the sheet from your event ops manager each
+            week.
           </p>
 
-          <form action={boundAdd} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
-                Venue
-              </label>
-              <input
-                name="venue"
-                required
-                placeholder="e.g. Dick's Sporting Goods – Cherry Hill"
-                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
-              />
-            </div>
+          <UploadEventsForm regionId={region.id} />
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
-                City, state
-              </label>
-              <input
-                name="city_state"
-                required
-                placeholder="e.g. Cherry Hill, NJ"
-                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
-                Start date
-              </label>
-              <input
-                type="date"
-                name="start_date"
-                required
-                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
-                End date (optional, multi-day events)
-              </label>
-              <input
-                type="date"
-                name="end_date"
-                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
-                Hours (optional)
-              </label>
-              <input
-                name="hours"
-                placeholder="e.g. 10am–4pm"
-                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
-                Sub-region (optional)
-              </label>
-              <select
-                name="subregion"
-                defaultValue=""
-                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
-              >
-                <option value="">Not tied to a specific area</option>
-                {region.subregion_options.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="sm:col-span-2">
-              <button
-                type="submit"
-                className="rounded-md bg-turf-green-500 px-4 py-2 text-sm font-bold text-white hover:bg-[#18201D]"
-              >
-                Add event
-              </button>
-            </div>
-          </form>
+          <p className="mt-4 text-xs text-slate-green-500">
+            Expected columns (any order, common header variants like &ldquo;Location&rdquo; or
+            &ldquo;Date&rdquo; are fine): <code className="rounded bg-offwhite px-1 py-0.5">venue</code>,{" "}
+            <code className="rounded bg-offwhite px-1 py-0.5">city_state</code>,{" "}
+            <code className="rounded bg-offwhite px-1 py-0.5">start_date</code>. Optional:{" "}
+            <code className="rounded bg-offwhite px-1 py-0.5">end_date</code>,{" "}
+            <code className="rounded bg-offwhite px-1 py-0.5">hours</code>,{" "}
+            <code className="rounded bg-offwhite px-1 py-0.5">subregion</code>,{" "}
+            <code className="rounded bg-offwhite px-1 py-0.5">status</code>.
+          </p>
         </section>
 
         <section className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">
@@ -172,7 +98,7 @@ export default async function RegionEventsPage({
               {events.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-4 py-10 text-center text-slate-green-500">
-                    No events yet — add one above.
+                    No events yet — upload this week&apos;s CSV above.
                   </td>
                 </tr>
               )}

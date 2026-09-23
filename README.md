@@ -77,6 +77,15 @@ in with a `@sidelineswap.com` Google account.
   place, with an **Edit questions** link per form so a coordinator can
   reword any built-in question or add their own custom free-text
   questions for their region.
+- **Events** (sidebar) — a region's event calendar. The intended workflow
+  is a weekly CSV upload (see `src/lib/events-csv.ts` for the expected/
+  aliased columns): uploading syncs the whole calendar to match the file,
+  matching existing events to rows by venue + date, so no one re-enters
+  events by hand. The per-event **Edit** page is there for one-off
+  corrections between uploads, not routine data entry.
+- **Settings** (sidebar) — a region's reminder-email content (subject,
+  headline, intro, button, closing) and send timing. The email's visual
+  design is fixed; only the content is per-region.
 
 Everything under `/signup` and `/preregister` is public (no sign-in
 required); everything else requires a signed-in `@sidelineswap.com` Google
