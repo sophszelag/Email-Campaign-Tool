@@ -4,6 +4,7 @@ import type {
   CampaignEvent,
   CampaignRecipient,
   Contact,
+  PreRegistration,
   Region,
   ReminderSignup,
   Suppression,
@@ -33,6 +34,7 @@ type Store = {
   suppressions: Suppression[];
   regions: Region[];
   reminderSignups: ReminderSignup[];
+  preRegistrations: PreRegistration[];
 };
 
 // South NJ / Philadelphia is the first region, seeded to match Soph's real
@@ -69,6 +71,7 @@ export const store: Store =
     suppressions: [],
     regions: [...SEED_REGIONS],
     reminderSignups: [],
+    preRegistrations: [],
   });
 
 export function newId(): string {

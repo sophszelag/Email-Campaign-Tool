@@ -105,3 +105,34 @@ export type ReminderSignup = {
   requested_locations: string | null;
   created_at: string;
 };
+
+export type Sport =
+  | "baseball"
+  | "basketball"
+  | "football"
+  | "hockey"
+  | "lacrosse"
+  | "soccer"
+  | "softball"
+  | "tennis"
+  | "other";
+
+export type ItemCount = "1-3" | "4-7" | "8-12" | "13+";
+
+// A customer registering ahead of a specific trade-in event. Not tied to
+// a real Campaign/event yet — once an event schedule exists, this should
+// gain a campaign_id so the form (and this record) reflect the real
+// event instead of the generic placeholder.
+export type PreRegistration = {
+  id: string;
+  region_id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  sport: Sport;
+  item_count: ItemCount;
+  has_referral_code: boolean;
+  referral_code: string | null;
+  created_at: string;
+};

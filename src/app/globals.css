@@ -1,12 +1,16 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap");
 @import "tailwindcss";
 
 /*
  * Product UI palette (SidelineSwap "forest-primary" design system).
  * Pulled directly from sidelineswap-event-campaign-tool-mockup.html's
- * :root custom properties — this is the real source, not an
- * approximation.
+ * :root custom properties, and cross-checked against the canonical
+ * styles/colors_and_type.css design-system doc from the Trade-In Self
+ * Registration design files — the values agree.
  */
 @theme {
+  --font-sans: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+
   --color-turf-green-500: #253c32;
   --color-turf-green-400: #3a614f;
   --color-turf-green-100: #c3d7cb;
@@ -20,9 +24,32 @@
   --color-red-100: #fdecec;
   --color-offwhite: #f8fffc;
   --color-canvas: #f4f7f5;
+
+  /*
+   * "Portal" palette — the customer-facing self-service flows (the
+   * reminder signup + trade-in pre-registration forms), taken directly
+   * from Trade-In Self Registration Form.html. Deliberately a separate
+   * token set from the product-UI colors above: this is a different
+   * surface (near-black ink on a warm canvas, dark-green header) built
+   * for customers, not the forest-green internal marketer tool.
+   */
+  --color-portal-canvas: #f0f0eb;
+  --color-portal-header: #1f3a2b;
+  --color-portal-ink: #101512;
+  --color-portal-ink-secondary: #5b6761;
+  --color-portal-ink-tertiary: #8a9690;
+  --color-portal-border: #e6e6e1;
+  --color-portal-border-hover: #d0d0cb;
+  --color-portal-green-hover: #00a85d;
+  --color-portal-green-tint: #f0fdf7;
+  --color-portal-green-tint-strong: #edfaf1;
+  --color-portal-neutral-tint: #f9f9f6;
+  --color-portal-neutral-disabled: #f5f5f0;
+  --color-portal-error: #d84c4c;
 }
 
 body {
+  font-family: var(--font-sans);
   color: var(--color-turf-green-500);
   background-color: var(--color-canvas);
 }

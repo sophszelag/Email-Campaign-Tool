@@ -20,70 +20,130 @@ export default async function RegionRemindersPage({
 
   const hdrs = await headers();
   const origin = `${hdrs.get("x-forwarded-proto") ?? "https"}://${hdrs.get("host")}`;
-  const formUrl = `${origin}/signup/${region.slug}`;
+  const signupUrl = `${origin}/signup/${region.slug}`;
+  const preRegisterUrl = `${origin}/preregister/${region.slug}`;
 
   const signups = store.reminderSignups
     .filter((s) => s.region_id === region.id)
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+
+  const preRegistrations = store.preRegistrations
+    .filter((p) => p.region_id === region.id)
     .sort((a, b) => b.created_at.localeCompare(a.created_at));
 
   return (
     <AppShell
       userEmail={session.user!.email!}
       title={region.name}
-      subtitle={`${signups.length.toLocaleString()} people waiting to hear about an event near them`}
+      subtitle={`${signups.length.toLocaleString()} reminder signups · ${preRegistrations.length.toLocaleString()} pre-registrations`}
     >
-      <div className="mb-6 rounded-[10px] border bg-white p-5 shadow-sm">
-        <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
-          Public signup link — share this with customers
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <code className="rounded-md bg-offwhite px-3 py-2 text-sm text-turf-green-500">{formUrl}</code>
-          <CopyLinkButton text={formUrl} />
-        </div>
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <LinkCard label="Reminder signup form" url={signupUrl} />
+        <LinkCard label="Trade-in pre-registration form" url={preRegisterUrl} />
       </div>
 
-      <div className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">
-        <table className="w-full min-w-[900px] text-left text-sm">
-          <thead>
-            <tr className="bg-offwhite">
-              <Th>Name</Th>
-              <Th>Email(s)</Th>
-              <Th>Town/State</Th>
-              <Th>Travel radius</Th>
-              <Th>Desired areas</Th>
-              <Th>Traded before</Th>
-              <Th>Submitted</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {signups.map((s) => (
-              <tr key={s.id} className="border-b border-pastel-green-500 last:border-0 align-top">
-                <td className="px-4 py-3 font-medium text-turf-green-500">{s.full_name}</td>
-                <td className="px-4 py-3 text-turf-green-500">{s.emails.join(", ")}</td>
-                <td className="px-4 py-3 text-turf-green-500">{s.home_city_state}</td>
-                <td className="px-4 py-3 text-turf-green-500">
-                  {s.travel_radius === "any" ? "Any distance" : `${s.travel_radius} mi`}
-                </td>
-                <td className="px-4 py-3 text-turf-green-500">
-                  {[...s.desired_subregions, s.desired_subregions_other].filter(Boolean).join("; ") || "—"}
-                </td>
-                <td className="px-4 py-3 text-turf-green-500">{s.traded_before ? "Yes" : "No"}</td>
-                <td className="px-4 py-3 text-slate-green-500">
-                  {new Date(s.created_at).toLocaleDateString()}
-                </td>
+      <section className="mb-8">
+        <h2 className="mb-3 text-sm font-bold text-turf-green-500">Reminder signups</h2>
+        <div className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">
+          <table className="w-full min-w-[900px] text-left text-sm">
+            <thead>
+              <tr className="bg-offwhite">
+                <Th>Name</Th>
+                <Th>Email(s)</Th>
+                <Th>Town/State</Th>
+                <Th>Travel radius</Th>
+                <Th>Desired areas</Th>
+                <Th>Traded before</Th>
+                <Th>Submitted</Th>
               </tr>
-            ))}
-            {signups.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-slate-green-500">
-                  No signups yet — share the link above to start collecting them.
-                </td>
+            </thead>
+            <tbody>
+              {signups.map((s) => (
+                <tr key={s.id} className="border-b border-pastel-green-500 last:border-0 align-top">
+                  <td className="px-4 py-3 font-medium text-turf-green-500">{s.full_name}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{s.emails.join(", ")}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{s.home_city_state}</td>
+                  <td className="px-4 py-3 text-turf-green-500">
+                    {s.travel_radius === "any" ? "Any distance" : `${s.travel_radius} mi`}
+                  </td>
+                  <td className="px-4 py-3 text-turf-green-500">
+                    {[...s.desired_subregions, s.desired_subregions_other].filter(Boolean).join("; ") || "—"}
+                  </td>
+                  <td className="px-4 py-3 text-turf-green-500">{s.traded_before ? "Yes" : "No"}</td>
+                  <td className="px-4 py-3 text-slate-green-500">
+                    {new Date(s.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+              {signups.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-green-500">
+                    No signups yet — share the link above to start collecting them.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-sm font-bold text-turf-green-500">Trade-in pre-registrations</h2>
+        <div className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">
+          <table className="w-full min-w-[900px] text-left text-sm">
+            <thead>
+              <tr className="bg-offwhite">
+                <Th>Name</Th>
+                <Th>Email</Th>
+                <Th>Phone</Th>
+                <Th>Sport</Th>
+                <Th>Items</Th>
+                <Th>Referral code</Th>
+                <Th>Submitted</Th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {preRegistrations.map((p) => (
+                <tr key={p.id} className="border-b border-pastel-green-500 last:border-0 align-top">
+                  <td className="px-4 py-3 font-medium text-turf-green-500">
+                    {p.first_name} {p.last_name}
+                  </td>
+                  <td className="px-4 py-3 text-turf-green-500">{p.email}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{p.phone}</td>
+                  <td className="px-4 py-3 capitalize text-turf-green-500">{p.sport}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{p.item_count}</td>
+                  <td className="px-4 py-3 text-turf-green-500">{p.referral_code ?? "—"}</td>
+                  <td className="px-4 py-3 text-slate-green-500">
+                    {new Date(p.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+              {preRegistrations.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-green-500">
+                    No pre-registrations yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </AppShell>
+  );
+}
+
+function LinkCard({ label, url }: { label: string; url: string }) {
+  return (
+    <div className="rounded-[10px] border bg-white p-5 shadow-sm">
+      <div className="mb-2 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
+        {label}
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <code className="break-all rounded-md bg-offwhite px-3 py-2 text-xs text-turf-green-500">{url}</code>
+        <CopyLinkButton text={url} />
+      </div>
+    </div>
   );
 }
 

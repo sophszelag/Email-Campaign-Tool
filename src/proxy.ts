@@ -29,8 +29,9 @@ export const config = {
   // - /api/unsubscribe    (the link every email points to)
   // - /signin             (the sign-in page itself)
   // - /signup/*           (the public reminder-signup form, one per region)
+  // - /preregister/*      (the public trade-in pre-registration form)
   // - static assets
   matcher: [
-    "/((?!api/auth|api/webhooks|unsubscribe|api/unsubscribe|signin|signup|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/auth|api/webhooks|unsubscribe|api/unsubscribe|signin|signup|preregister|_next/static|_next/image|favicon.ico).*)",
   ],
 };
