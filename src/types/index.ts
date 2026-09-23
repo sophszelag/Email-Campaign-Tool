@@ -69,6 +69,8 @@ export type TradeInEvent = {
   end_date: string | null;
   /** Free text, e.g. "10am–4pm". */
   hours: string | null;
+  /** Optional registration cap, for showing a "X/Y registered" progress bar. Null if uncapped. */
+  capacity: number | null;
   status: EventStatus;
   created_at: string;
 };

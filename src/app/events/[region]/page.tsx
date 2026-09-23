@@ -53,7 +53,8 @@ export default async function RegionEventsPage({
             <code className="rounded bg-offwhite px-1 py-0.5">end_date</code>,{" "}
             <code className="rounded bg-offwhite px-1 py-0.5">hours</code>,{" "}
             <code className="rounded bg-offwhite px-1 py-0.5">subregion</code>,{" "}
-            <code className="rounded bg-offwhite px-1 py-0.5">status</code>.
+            <code className="rounded bg-offwhite px-1 py-0.5">status</code>,{" "}
+            <code className="rounded bg-offwhite px-1 py-0.5">capacity</code>.
           </p>
         </section>
 

@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
+import { formatEventDate } from "@/lib/events";
 import AppShell from "@/components/AppShell";
+import CopyLinkButton from "@/components/CopyLinkButton";
 
 export const dynamic = "force-dynamic";
 
@@ -14,12 +17,17 @@ function daysAgoIso(days: number): string {
 export default async function DashboardPage() {
   const session = await requireSession();
 
+  const hdrs = await headers();
+  const origin = `${hdrs.get("x-forwarded-proto") ?? "https"}://${hdrs.get("host")}`;
+
   const today = new Date().toISOString().slice(0, 10);
   const sevenDaysAgo = daysAgoIso(7);
 
   const totalSignups = store.reminderSignups.length;
   const totalPreRegs = store.preRegistrations.length;
-  const upcomingEvents = store.events.filter((e) => e.status === "upcoming" && e.start_date >= today);
+  const upcomingEvents = store.events
+    .filter((e) => e.status === "upcoming" && e.start_date >= today)
+    .sort((a, b) => a.start_date.localeCompare(b.start_date));
   const signupsLast7Days = store.reminderSignups.filter((s) => s.created_at >= sevenDaysAgo).length;
   const preRegsLast7Days = store.preRegistrations.filter((p) => p.created_at >= sevenDaysAgo).length;
 
@@ -40,6 +48,73 @@ export default async function DashboardPage() {
         <StatCard label="Upcoming events" value={upcomingEvents.length} />
         <StatCard label="Regions" value={store.regions.length} />
       </div>
+
+      <section className="mb-8 rounded-[10px] border bg-white shadow-sm">
+        <div className="p-5 pb-0">
+          <h2 className="text-sm font-bold text-turf-green-500">Your events · share to pre-register</h2>
+        </div>
+
+        {upcomingEvents.length === 0 && (
+          <p className="p-5 text-sm text-slate-green-500">
+            No upcoming events yet — add some on the{" "}
+            <Link href="/events" className="font-bold text-turf-green-500 underline">
+              Events
+            </Link>{" "}
+            page.
+          </p>
+        )}
+
+        {upcomingEvents.map((event, index) => {
+          const region = store.regions.find((r) => r.id === event.region_id);
+          const registered = store.preRegistrations.filter((p) => p.event_id === event.id).length;
+          const url = `${origin}/preregister/event/${event.id}`;
+          const pct = event.capacity ? Math.min(100, Math.round((registered / event.capacity) * 100)) : null;
+
+          return (
+            <div key={event.id} className={`p-5 ${index > 0 ? "border-t" : ""}`}>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="font-bold text-turf-green-500">
+                    {event.venue} · {event.city_state}
+                  </div>
+                  <div className="mt-0.5 text-sm text-slate-green-500">
+                    {formatEventDate(event)}
+                    {event.hours ? ` · ${event.hours}` : ""}
+                    {region ? ` · ${region.name}` : ""}
+                  </div>
+                </div>
+                <div className="flex flex-col items-start gap-2 sm:items-end">
+                  <code className="max-w-[260px] truncate rounded-md bg-offwhite px-3 py-2 text-xs text-turf-green-500">
+                    {url}
+                  </code>
+                  <CopyLinkButton text={url} />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                {event.capacity ? (
+                  <div className="flex items-center gap-3">
+                    <div className="h-2 flex-1 rounded-full bg-pastel-green-500">
+                      <div
+                        className="h-2 rounded-full bg-green-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="whitespace-nowrap text-sm text-turf-green-500">
+                      <strong>{registered.toLocaleString()}</strong>/{event.capacity.toLocaleString()}{" "}
+                      registered
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-turf-green-500">
+                    {registered.toLocaleString()} registered
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </section>
 
       <section>
         <h2 className="mb-3 text-sm font-bold text-turf-green-500">By region</h2>

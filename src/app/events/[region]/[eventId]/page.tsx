@@ -117,6 +117,20 @@ export default async function EditEventPage({
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+              Capacity (optional)
+            </label>
+            <input
+              type="number"
+              name="capacity"
+              min={1}
+              placeholder="e.g. 50"
+              defaultValue={event.capacity ?? ""}
+              className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
               Status
             </label>
             <select

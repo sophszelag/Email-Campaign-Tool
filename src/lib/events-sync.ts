@@ -30,6 +30,7 @@ export function syncRegionEvents(regionId: string, rows: ParsedEventRow[]): Sync
       match.hours = row.hours;
       match.subregion = row.subregion;
       match.status = row.status;
+      match.capacity = row.capacity;
       synced.push(match);
       seenIds.add(match.id);
       updated++;
@@ -44,6 +45,7 @@ export function syncRegionEvents(regionId: string, rows: ParsedEventRow[]): Sync
         hours: row.hours,
         subregion: row.subregion,
         status: row.status,
+        capacity: row.capacity,
         created_at: new Date().toISOString(),
       };
       synced.push(created);

@@ -9,6 +9,7 @@ export type ParsedEventRow = {
   hours: string | null;
   subregion: string | null;
   status: EventStatus;
+  capacity: number | null;
 };
 
 export type EventsCsvParseResult = {
@@ -46,6 +47,10 @@ const HEADER_ALIASES: Record<string, string> = {
   "sub-region": "subregion",
   "sub region": "subregion",
   status: "status",
+  capacity: "capacity",
+  cap: "capacity",
+  max: "capacity",
+  limit: "capacity",
 };
 
 function normalizeHeader(header: string): string {
@@ -102,6 +107,10 @@ function parseCommonFields(
   const status: EventStatus =
     rawStatus === "completed" || rawStatus === "cancelled" ? rawStatus : "upcoming";
 
+  const rawCapacity = record.capacity?.trim();
+  const parsedCapacity = rawCapacity ? Number.parseInt(rawCapacity, 10) : NaN;
+  const capacity = Number.isFinite(parsedCapacity) && parsedCapacity > 0 ? parsedCapacity : null;
+
   return {
     fields: {
       venue,
@@ -110,6 +119,7 @@ function parseCommonFields(
       end_date: endDate,
       hours: record.hours?.trim() || null,
       status,
+      capacity,
     },
     rawSubregion: record.subregion?.trim() || null,
   };

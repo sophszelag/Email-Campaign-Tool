@@ -57,7 +57,10 @@ function readEventFields(formData: FormData) {
   const start_date = (formData.get("start_date") as string | null)?.trim() || "";
   const end_date = (formData.get("end_date") as string | null)?.trim() || null;
   const hours = (formData.get("hours") as string | null)?.trim() || null;
-  return { subregion, venue, city_state, start_date, end_date, hours };
+  const rawCapacity = (formData.get("capacity") as string | null)?.trim();
+  const parsedCapacity = rawCapacity ? Number.parseInt(rawCapacity, 10) : NaN;
+  const capacity = Number.isFinite(parsedCapacity) && parsedCapacity > 0 ? parsedCapacity : null;
+  return { subregion, venue, city_state, start_date, end_date, hours, capacity };
 }
 
 /** For one-off corrections between weekly uploads — the CSV upload is the primary way events get added. */
@@ -74,6 +77,7 @@ export async function updateEvent(regionId: string, eventId: string, formData: F
   event.end_date = fields.end_date;
   event.hours = fields.hours;
   event.subregion = fields.subregion;
+  event.capacity = fields.capacity;
 
   const status = formData.get("status");
   if (status === "upcoming" || status === "completed" || status === "cancelled") {
