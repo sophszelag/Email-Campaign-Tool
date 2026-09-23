@@ -4,6 +4,7 @@ import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
 import AppShell from "@/components/AppShell";
 import UploadEventsForm from "./UploadEventsForm";
+import { addEvent } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,8 @@ export default async function RegionEventsPage({
   const events = store.events
     .filter((e) => e.region_id === region.id)
     .sort((a, b) => a.start_date.localeCompare(b.start_date));
+
+  const boundAdd = addEvent.bind(null, region.id);
 
   return (
     <AppShell userEmail={session.user!.email!} title="Events" subtitle={region.name}>
@@ -56,6 +59,114 @@ export default async function RegionEventsPage({
             <code className="rounded bg-offwhite px-1 py-0.5">status</code>,{" "}
             <code className="rounded bg-offwhite px-1 py-0.5">capacity</code>.
           </p>
+        </section>
+
+        <section className="rounded-[10px] border bg-white p-5 shadow-sm">
+          <h2 className="mb-1 text-sm font-bold text-turf-green-500">Add an event manually</h2>
+          <p className="mb-4 text-[13px] text-slate-green-500">
+            For a quick one-off add or testing — the CSV upload above is still the way to keep the
+            whole calendar in sync week to week.
+          </p>
+
+          <form action={boundAdd} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                Venue
+              </label>
+              <input
+                name="venue"
+                required
+                placeholder="e.g. Dick's Sporting Goods – Cherry Hill"
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                City, state
+              </label>
+              <input
+                name="city_state"
+                required
+                placeholder="e.g. Cherry Hill, NJ"
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                Start date
+              </label>
+              <input
+                type="date"
+                name="start_date"
+                required
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                End date (optional, multi-day events)
+              </label>
+              <input
+                type="date"
+                name="end_date"
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                Hours (optional)
+              </label>
+              <input
+                name="hours"
+                placeholder="e.g. 10am–4pm"
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                Capacity (optional)
+              </label>
+              <input
+                type="number"
+                name="capacity"
+                min={1}
+                placeholder="e.g. 50"
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                Sub-region (optional)
+              </label>
+              <select
+                name="subregion"
+                defaultValue=""
+                className="rounded-md border px-3 py-2 text-sm text-turf-green-500 focus:border-turf-green-500 focus:outline-none"
+              >
+                <option value="">Not tied to a specific area</option>
+                {region.subregion_options.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <button
+                type="submit"
+                className="rounded-md bg-turf-green-500 px-4 py-2 text-sm font-bold text-white hover:bg-[#18201D]"
+              >
+                Add event
+              </button>
+            </div>
+          </form>
         </section>
 
         <section className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">

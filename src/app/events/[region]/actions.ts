@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/session";
-import { store } from "@/lib/db/store";
+import { store, newId } from "@/lib/db/store";
 import { parseEventsCsv } from "@/lib/events-csv";
 import { syncRegionEvents } from "@/lib/events-sync";
 import type { EventStatus } from "@/types";
@@ -48,6 +48,32 @@ export async function uploadEventsCsv(
   const errorNote = errors.length > 0 ? ` ${errors.length} row(s) skipped — ${errors.join(" ")}` : "";
 
   return { ok: true, message: summary + errorNote };
+}
+
+export async function addEvent(regionId: string, formData: FormData) {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  if (!region) return;
+
+  const fields = readEventFields(formData);
+  if (!fields.venue || !fields.city_state || !fields.start_date) return;
+
+  store.events.push({
+    id: newId(),
+    region_id: region.id,
+    subregion: fields.subregion,
+    venue: fields.venue,
+    city_state: fields.city_state,
+    start_date: fields.start_date,
+    end_date: fields.end_date,
+    hours: fields.hours,
+    capacity: fields.capacity,
+    status: "upcoming",
+    created_at: new Date().toISOString(),
+  });
+
+  revalidatePath(`/events/${region.slug}`);
+  revalidatePath(`/preregister/${region.slug}`);
 }
 
 function readEventFields(formData: FormData) {
