@@ -21,7 +21,7 @@ export default async function RegionSettingsPage({
   if (!region) notFound();
 
   const boundUpdate = updateReminderEmailSettings.bind(null, region.id);
-  const previewHtml = renderReminderEmailHtml(region.reminder_email);
+  const previewHtml = renderReminderEmailHtml("classic", region.reminder_email);
 
   return (
     <AppShell userEmail={session.user!.email!} title="Settings" subtitle={region.name}>

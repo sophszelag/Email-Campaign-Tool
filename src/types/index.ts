@@ -53,6 +53,24 @@ export type Region = {
 
 export type EventStatus = "upcoming" | "completed" | "cancelled";
 
+// Which visual design a reminder email renders with — see
+// src/lib/email/reminder-template.ts (EMAIL_TEMPLATES) for the actual
+// layouts and their names/descriptions.
+export type EmailTemplateId = "classic" | "minimal" | "bold";
+
+// A coordinator's customized reminder email for one specific event: its
+// own visual template, content, and send timing, overriding the region's
+// generic reminder_email (Settings page) just for this event.
+export type EventEmail = {
+  template_id: EmailTemplateId;
+  subject: string;
+  headline: string;
+  intro: string;
+  button_label: string;
+  closing: string;
+  send_days_before_event: number;
+};
+
 // A scheduled trade-in event at a specific venue. Coordinators manage
 // these directly (add/edit/cancel) rather than re-uploading a
 // spreadsheet, since events change one at a time, not in bulk.
@@ -71,6 +89,8 @@ export type TradeInEvent = {
   hours: string | null;
   /** Optional registration cap, for showing a "X/Y registered" progress bar. Null if uncapped. */
   capacity: number | null;
+  /** This event's own reminder email, if a coordinator has set one up. Null falls back to the region's generic reminder_email. */
+  email: EventEmail | null;
   status: EventStatus;
   created_at: string;
 };

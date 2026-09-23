@@ -46,6 +46,7 @@ export function syncRegionEvents(regionId: string, rows: ParsedEventRow[]): Sync
         subregion: row.subregion,
         status: row.status,
         capacity: row.capacity,
+        email: null,
         created_at: new Date().toISOString(),
       };
       synced.push(created);

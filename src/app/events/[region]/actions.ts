@@ -5,7 +5,8 @@ import { requireSession } from "@/lib/session";
 import { store, newId } from "@/lib/db/store";
 import { parseEventsCsv } from "@/lib/events-csv";
 import { syncRegionEvents } from "@/lib/events-sync";
-import type { EventStatus } from "@/types";
+import { defaultEventEmail } from "@/lib/event-email-defaults";
+import type { EmailTemplateId, EventStatus } from "@/types";
 
 export type UploadEventsResult = { ok: boolean; message: string };
 
@@ -68,6 +69,7 @@ export async function addEvent(regionId: string, formData: FormData) {
     end_date: fields.end_date,
     hours: fields.hours,
     capacity: fields.capacity,
+    email: null,
     status: "upcoming",
     created_at: new Date().toISOString(),
   });
@@ -124,4 +126,61 @@ export async function deleteEvent(regionId: string, eventId: string) {
 
   revalidatePath(`/events/${region.slug}`);
   revalidatePath(`/preregister/${region.slug}`);
+}
+
+/** Starts this event's own reminder email, seeded from the region's generic one, so a coordinator edits from something rather than a blank form. */
+export async function initializeEventEmail(regionId: string, eventId: string) {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  const event = store.events.find((e) => e.id === eventId && e.region_id === regionId);
+  if (!region || !event) return;
+
+  if (!event.email) event.email = defaultEventEmail(region);
+
+  revalidatePath(`/events/${region.slug}/${event.id}`);
+}
+
+export async function updateEventEmail(regionId: string, eventId: string, formData: FormData) {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  const event = store.events.find((e) => e.id === eventId && e.region_id === regionId);
+  if (!region || !event) return;
+
+  const current = event.email ?? defaultEventEmail(region);
+
+  const templateRaw = formData.get("template_id");
+  const template_id: EmailTemplateId =
+    templateRaw === "minimal" || templateRaw === "bold" ? templateRaw : "classic";
+
+  const subject = (formData.get("subject") as string | null)?.trim();
+  const headline = (formData.get("headline") as string | null)?.trim();
+  const intro = (formData.get("intro") as string | null)?.trim();
+  const buttonLabel = (formData.get("button_label") as string | null)?.trim();
+  const closing = (formData.get("closing") as string | null)?.trim();
+  const daysRaw = formData.get("send_days_before_event");
+  const days = typeof daysRaw === "string" ? Number.parseInt(daysRaw, 10) : NaN;
+
+  event.email = {
+    template_id,
+    subject: subject || current.subject,
+    headline: headline || current.headline,
+    intro: intro || current.intro,
+    button_label: buttonLabel || current.button_label,
+    closing: closing || current.closing,
+    send_days_before_event: Number.isFinite(days) && days > 0 ? days : current.send_days_before_event,
+  };
+
+  revalidatePath(`/events/${region.slug}/${event.id}`);
+}
+
+/** Drops this event's custom email so it falls back to the region's generic reminder_email again. */
+export async function clearEventEmail(regionId: string, eventId: string) {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  const event = store.events.find((e) => e.id === eventId && e.region_id === regionId);
+  if (!region || !event) return;
+
+  event.email = null;
+
+  revalidatePath(`/events/${region.slug}/${event.id}`);
 }
