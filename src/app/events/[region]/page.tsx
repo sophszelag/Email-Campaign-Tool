@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
 import AppShell from "@/components/AppShell";
+import CopyLinkButton from "@/components/CopyLinkButton";
 import UploadEventsForm from "./UploadEventsForm";
 import { addEvent } from "./actions";
 
@@ -21,6 +23,9 @@ export default async function RegionEventsPage({
 }) {
   const session = await requireSession();
   const { region: slug } = await params;
+
+  const hdrs = await headers();
+  const origin = `${hdrs.get("x-forwarded-proto") ?? "https"}://${hdrs.get("host")}`;
 
   const region = store.regions.find((r) => r.slug === slug);
   if (!region) notFound();
@@ -170,7 +175,7 @@ export default async function RegionEventsPage({
         </section>
 
         <section className="overflow-hidden overflow-x-auto rounded-[10px] border bg-white shadow-sm">
-          <table className="w-full min-w-[800px] text-left text-sm">
+          <table className="w-full min-w-[1050px] text-left text-sm">
             <thead>
               <tr className="bg-offwhite">
                 <Th>Venue</Th>
@@ -179,40 +184,52 @@ export default async function RegionEventsPage({
                 <Th>Hours</Th>
                 <Th>Sub-region</Th>
                 <Th>Status</Th>
+                <Th>Pre-registration link</Th>
                 <Th>{""}</Th>
               </tr>
             </thead>
             <tbody>
-              {events.map((event) => (
-                <tr key={event.id} className="border-b border-pastel-green-500 last:border-0 align-top">
-                  <td className="px-4 py-3 font-medium text-turf-green-500">{event.venue}</td>
-                  <td className="px-4 py-3 text-turf-green-500">{event.city_state}</td>
-                  <td className="px-4 py-3 text-turf-green-500">
-                    {event.start_date}
-                    {event.end_date && event.end_date !== event.start_date ? ` – ${event.end_date}` : ""}
-                  </td>
-                  <td className="px-4 py-3 text-turf-green-500">{event.hours ?? "—"}</td>
-                  <td className="px-4 py-3 text-turf-green-500">{event.subregion ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.04em] ${STATUS_STYLES[event.status]}`}
-                    >
-                      {event.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/events/${region.slug}/${event.id}`}
-                      className="rounded-md border px-3 py-1.5 text-xs font-bold text-turf-green-500 hover:bg-offwhite"
-                    >
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              ))}
+              {events.map((event) => {
+                const preregUrl = `${origin}/preregister/event/${event.id}`;
+                return (
+                  <tr key={event.id} className="border-b border-pastel-green-500 last:border-0 align-top">
+                    <td className="px-4 py-3 font-medium text-turf-green-500">{event.venue}</td>
+                    <td className="px-4 py-3 text-turf-green-500">{event.city_state}</td>
+                    <td className="px-4 py-3 text-turf-green-500">
+                      {event.start_date}
+                      {event.end_date && event.end_date !== event.start_date ? ` – ${event.end_date}` : ""}
+                    </td>
+                    <td className="px-4 py-3 text-turf-green-500">{event.hours ?? "—"}</td>
+                    <td className="px-4 py-3 text-turf-green-500">{event.subregion ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.04em] ${STATUS_STYLES[event.status]}`}
+                      >
+                        {event.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <code className="max-w-[180px] truncate rounded-md bg-offwhite px-2 py-1.5 text-[11px] text-turf-green-500">
+                          {preregUrl}
+                        </code>
+                        <CopyLinkButton text={preregUrl} />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/events/${region.slug}/${event.id}`}
+                        className="rounded-md border px-3 py-1.5 text-xs font-bold text-turf-green-500 hover:bg-offwhite"
+                      >
+                        Edit
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
               {events.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-slate-green-500">
+                  <td colSpan={8} className="px-4 py-10 text-center text-slate-green-500">
                     No events yet — upload this week&apos;s CSV above.
                   </td>
                 </tr>

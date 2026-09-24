@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
 import { EMAIL_TEMPLATES, renderReminderEmailHtml } from "@/lib/email/reminder-template";
 import { defaultEventEmail } from "@/lib/event-email-defaults";
 import { referralBonusPercent } from "@/types";
 import AppShell from "@/components/AppShell";
+import CopyLinkButton from "@/components/CopyLinkButton";
 import { updateEvent, deleteEvent, initializeEventEmail, updateEventEmail, clearEventEmail } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +19,9 @@ export default async function EditEventPage({
 }) {
   const session = await requireSession();
   const { region: slug, eventId } = await params;
+
+  const hdrs = await headers();
+  const origin = `${hdrs.get("x-forwarded-proto") ?? "https"}://${hdrs.get("host")}`;
 
   const region = store.regions.find((r) => r.slug === slug);
   if (!region) notFound();
@@ -32,6 +37,7 @@ export default async function EditEventPage({
 
   const emailContent = event.email ?? defaultEventEmail(region);
   const previewHtml = renderReminderEmailHtml(emailContent.template_id, emailContent);
+  const preregUrl = `${origin}/preregister/event/${event.id}`;
 
   const preRegistrations = store.preRegistrations
     .filter((p) => p.event_id === event.id)
@@ -52,6 +58,20 @@ export default async function EditEventPage({
           ← Back to events
         </Link>
       </div>
+
+      <section className="mb-6 rounded-[10px] border bg-white p-5 shadow-sm">
+        <h2 className="mb-1 text-sm font-bold text-turf-green-500">This event&apos;s pre-registration link</h2>
+        <p className="mb-3 text-[13px] text-slate-green-500">
+          Unique to {event.venue}, so every sign-up (and every referral) is tracked to this event
+          specifically. Share it on flyers, social posts, or directly with pre-registrants.
+        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <code className="max-w-full flex-1 truncate rounded-md bg-offwhite px-3 py-2 text-xs text-turf-green-500">
+            {preregUrl}
+          </code>
+          <CopyLinkButton text={preregUrl} />
+        </div>
+      </section>
 
       <section className="rounded-[10px] border bg-white p-5 shadow-sm">
         <form action={boundUpdate} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
