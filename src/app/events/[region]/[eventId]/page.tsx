@@ -4,6 +4,7 @@ import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
 import { EMAIL_TEMPLATES, renderReminderEmailHtml } from "@/lib/email/reminder-template";
 import { defaultEventEmail } from "@/lib/event-email-defaults";
+import { referralBonusPercent } from "@/types";
 import AppShell from "@/components/AppShell";
 import { updateEvent, deleteEvent, initializeEventEmail, updateEventEmail, clearEventEmail } from "../actions";
 
@@ -31,6 +32,15 @@ export default async function EditEventPage({
 
   const emailContent = event.email ?? defaultEventEmail(region);
   const previewHtml = renderReminderEmailHtml(emailContent.template_id, emailContent);
+
+  const preRegistrations = store.preRegistrations
+    .filter((p) => p.event_id === event.id)
+    .sort((a, b) => a.created_at.localeCompare(b.created_at));
+  const preRegById = new Map(preRegistrations.map((p) => [p.id, p]));
+  const referralCounts = new Map<string, number>();
+  for (const p of preRegistrations) {
+    if (p.referred_by) referralCounts.set(p.referred_by, (referralCounts.get(p.referred_by) ?? 0) + 1);
+  }
 
   return (
     <AppShell userEmail={session.user!.email!} title="Edit event" subtitle={region.name}>
@@ -329,6 +339,71 @@ export default async function EditEventPage({
           </>
         )}
       </section>
+
+      <section className="mt-6 rounded-[10px] border bg-white p-5 shadow-sm">
+        <h2 className="mb-1 text-sm font-bold text-turf-green-500">Pre-registrations for this event</h2>
+        <p className="mb-4 text-[13px] text-slate-green-500">
+          Everyone who&apos;s pre-registered, and their referral activity — every friend who signs up
+          using someone&apos;s link is worth a 5% trade-in bonus for them, up to 15%.
+        </p>
+
+        <div className="overflow-hidden overflow-x-auto rounded-[10px] border">
+          <table className="w-full min-w-[900px] text-left text-sm">
+            <thead>
+              <tr className="bg-offwhite">
+                <Th>Name</Th>
+                <Th>Email</Th>
+                <Th>Phone</Th>
+                <Th>Referred by</Th>
+                <Th>Referrals</Th>
+                <Th>Bonus</Th>
+                <Th>Submitted</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {preRegistrations.map((p) => {
+                const referrer = p.referred_by ? preRegById.get(p.referred_by) : null;
+                const referralCount = referralCounts.get(p.id) ?? 0;
+                const bonus = referralBonusPercent(referralCount);
+                return (
+                  <tr key={p.id} className="border-b border-pastel-green-500 last:border-0 align-top">
+                    <td className="px-4 py-3 font-medium text-turf-green-500">
+                      {p.first_name} {p.last_name}
+                    </td>
+                    <td className="px-4 py-3 text-turf-green-500">{p.email}</td>
+                    <td className="px-4 py-3 text-turf-green-500">{p.phone}</td>
+                    <td className="px-4 py-3 text-turf-green-500">
+                      {referrer ? `${referrer.first_name} ${referrer.last_name}` : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-turf-green-500">{referralCount}</td>
+                    <td className="px-4 py-3 font-medium text-turf-green-500">
+                      {bonus > 0 ? `${bonus}%` : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-slate-green-500">
+                      {new Date(p.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                );
+              })}
+              {preRegistrations.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-4 py-10 text-center text-slate-green-500">
+                    No pre-registrations for this event yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </AppShell>
+  );
+}
+
+function Th({ children }: { children: React.ReactNode }) {
+  return (
+    <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
+      {children}
+    </th>
   );
 }

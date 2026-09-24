@@ -155,9 +155,23 @@ export type PreRegistration = {
   /** Customers often bring gear from more than one sport, so this is multi-select. */
   sports: Sport[];
   item_count: ItemCount;
-  has_referral_code: boolean;
-  referral_code: string | null;
+  /**
+   * The id of the PreRegistration whose referral link this person used to
+   * sign up, if any. Doubles as that person's trade-in bonus credit — see
+   * REFERRAL_BONUS_PER_REFERRAL_PERCENT / REFERRAL_BONUS_MAX_PERCENT below.
+   * Null if they registered directly (no referral link).
+   */
+  referred_by: string | null;
   /** Answers to this region's custom questions, keyed by CustomQuestion.id. */
   custom_answers: Record<string, string>;
   created_at: string;
 };
+
+// Every successful referral (a friend who pre-registers using your link)
+// is worth a 5% trade-in bonus, capped at 15% (3 referrals).
+export const REFERRAL_BONUS_PER_REFERRAL_PERCENT = 5;
+export const REFERRAL_BONUS_MAX_PERCENT = 15;
+
+export function referralBonusPercent(referralCount: number): number {
+  return Math.min(referralCount * REFERRAL_BONUS_PER_REFERRAL_PERCENT, REFERRAL_BONUS_MAX_PERCENT);
+}

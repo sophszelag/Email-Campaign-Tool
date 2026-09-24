@@ -9,15 +9,22 @@ export const dynamic = "force-dynamic";
 
 export default async function PreRegisterForEventPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ eventId: string }>;
+  searchParams: Promise<{ ref?: string }>;
 }) {
   const { eventId } = await params;
+  const { ref } = await searchParams;
   const event = store.events.find((e) => e.id === eventId);
   if (!event) notFound();
 
   const region = store.regions.find((r) => r.id === event.region_id);
   if (!region) notFound();
+
+  // Only trust a referral link if it actually points at someone who
+  // registered for this same event — otherwise it's just ignored.
+  const referrer = ref ? store.preRegistrations.find((p) => p.id === ref && p.event_id === event.id) : null;
 
   if (event.status !== "upcoming") {
     return (
@@ -39,10 +46,17 @@ export default async function PreRegisterForEventPage({
       <h1 className="mb-1.5 text-[32px] font-extrabold tracking-tight text-portal-ink sm:text-[36px]">
         Register for trade-in
       </h1>
-      <p className="mb-8 text-[15px] leading-relaxed text-portal-ink-secondary">
+      <p
+        className={`${referrer ? "mb-2" : "mb-8"} text-[15px] leading-relaxed text-portal-ink-secondary`}
+      >
         Pre-register before you arrive to skip the line — just drop off your gear and go when you get
         to the event.
       </p>
+      {referrer && (
+        <p className="mb-8 text-[13px] font-medium text-green-600">
+          👋 You were invited by {referrer.first_name} — pre-register below to join them.
+        </p>
+      )}
 
       <EventBadge
         eyebrow="Event"
@@ -53,6 +67,7 @@ export default async function PreRegisterForEventPage({
       <PreRegistrationForm
         regionId={region.id}
         eventId={event.id}
+        referredBy={referrer?.id ?? null}
         fieldLabels={region.preregister_form.field_labels}
         customQuestions={region.preregister_form.custom_questions}
       />

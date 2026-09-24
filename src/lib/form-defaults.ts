@@ -22,7 +22,6 @@ export const PREREGISTER_FIELD_DEFAULTS: Record<string, string> = {
   phone: "Phone",
   sport: "Sport",
   item_count: "Approximate number of items",
-  has_referral_code: "Have a referral code?",
 };
 
 export function getFieldLabel(

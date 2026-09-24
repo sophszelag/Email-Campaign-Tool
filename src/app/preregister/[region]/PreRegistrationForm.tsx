@@ -5,7 +5,6 @@ import { submitPreRegistration, type PreRegResult } from "@/app/preregister/[reg
 import {
   FormSection,
   FormField,
-  RadioCard,
   PortalCheckbox,
   PortalButton,
   InfoBox,
@@ -13,8 +12,10 @@ import {
   CustomQuestionFields,
   portalInputClass,
 } from "@/components/portal/PortalForm";
+import CopyLinkButton from "@/components/CopyLinkButton";
 import { PREREGISTER_FIELD_DEFAULTS, getFieldLabel } from "@/lib/form-defaults";
 import type { CustomQuestion } from "@/types";
+import { REFERRAL_BONUS_PER_REFERRAL_PERCENT, REFERRAL_BONUS_MAX_PERCENT } from "@/types";
 
 const initialState: PreRegResult = { ok: false, message: "" };
 
@@ -40,11 +41,13 @@ const ITEM_COUNTS: [string, string][] = [
 export default function PreRegistrationForm({
   regionId,
   eventId,
+  referredBy,
   fieldLabels,
   customQuestions,
 }: {
   regionId: string;
   eventId: string | null;
+  referredBy?: string | null;
   fieldLabels: Record<string, string>;
   customQuestions: CustomQuestion[];
 }) {
@@ -60,6 +63,26 @@ export default function PreRegistrationForm({
       <SuccessState
         title="Registration complete!"
         message={`${state.message} Check your email and text messages for updates.`}
+        note={
+          state.referralLink ? (
+            <div className="mt-6 rounded-lg border-[1.5px] border-[#cbecd6] bg-portal-green-tint p-4 text-left">
+              <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#047a32]">
+                💰 Earn a trade-in bonus
+              </div>
+              <p className="mb-3 text-xs leading-relaxed text-[#3a6650]">
+                Share your link with friends and teammates — for every friend who pre-registers
+                using it, you get a {REFERRAL_BONUS_PER_REFERRAL_PERCENT}% bonus on your trade-in,
+                up to {REFERRAL_BONUS_MAX_PERCENT}%.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <code className="max-w-full flex-1 truncate rounded-md bg-white px-3 py-2 text-xs text-portal-ink">
+                  {state.referralLink}
+                </code>
+                <CopyLinkButton text={state.referralLink} />
+              </div>
+            </div>
+          ) : undefined
+        }
       />
     );
   }
@@ -68,6 +91,7 @@ export default function PreRegistrationForm({
     <form action={formAction}>
       <input type="hidden" name="region_id" value={regionId} />
       {eventId && <input type="hidden" name="event_id" value={eventId} />}
+      {referredBy && <input type="hidden" name="referred_by" value={referredBy} />}
 
       <FormSection title="Contact information">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -112,31 +136,6 @@ export default function PreRegistrationForm({
             ))}
           </select>
         </FormField>
-      </FormSection>
-
-      <FormSection title="Referral or promo">
-        <div className="group/referral">
-          <FormField label={label("has_referral_code")}>
-            <div className="flex flex-col gap-2.5">
-              <RadioCard name="has_referral_code" value="no" label="No, I don't have one" defaultChecked />
-              <RadioCard name="has_referral_code" value="yes" label="Yes, I have a code" />
-            </div>
-          </FormField>
-
-          <div className="mt-4 hidden space-y-4 group-has-[input[value=yes]:checked]/referral:block">
-            <div className="rounded-lg border-[1.5px] border-[#cbecd6] bg-portal-green-tint p-3.5">
-              <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#047a32]">
-                💡 Tip
-              </div>
-              <p className="text-xs leading-relaxed text-[#3a6650]">
-                Enter your referral or promo code below. Our team will verify and apply it to your payout.
-              </p>
-            </div>
-            <FormField label="Code">
-              <input name="referral_code" placeholder="e.g. FRIEND2024" className={portalInputClass} />
-            </FormField>
-          </div>
-        </div>
       </FormSection>
 
       <CustomQuestionFields questions={customQuestions} />

@@ -49,6 +49,11 @@ export default async function RegionRemindersPage({
     ...(unassigned.length > 0 ? [{ event: null, registrations: unassigned }] : []),
   ];
 
+  const referralCounts = new Map<string, number>();
+  for (const p of preRegistrations) {
+    if (p.referred_by) referralCounts.set(p.referred_by, (referralCounts.get(p.referred_by) ?? 0) + 1);
+  }
+
   const locationCounts = new Map<string, number>();
   for (const s of signups) {
     for (const loc of s.desired_subregions) {
@@ -165,7 +170,7 @@ export default async function RegionRemindersPage({
                     <Th>Phone</Th>
                     <Th>Sport</Th>
                     <Th>Items</Th>
-                    <Th>Referral code</Th>
+                    <Th>Referrals</Th>
                     <Th>Submitted</Th>
                   </tr>
                 </thead>
@@ -179,7 +184,7 @@ export default async function RegionRemindersPage({
                       <td className="px-4 py-3 text-turf-green-500">{p.phone}</td>
                       <td className="px-4 py-3 capitalize text-turf-green-500">{p.sports.join(", ")}</td>
                       <td className="px-4 py-3 text-turf-green-500">{p.item_count}</td>
-                      <td className="px-4 py-3 text-turf-green-500">{p.referral_code ?? "—"}</td>
+                      <td className="px-4 py-3 text-turf-green-500">{referralCounts.get(p.id) ?? 0}</td>
                       <td className="px-4 py-3 text-slate-green-500">
                         {new Date(p.created_at).toLocaleDateString()}
                       </td>
