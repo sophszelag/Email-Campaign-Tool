@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { PreRegistration, Region, ReminderSignup, TradeInEvent } from "@/types";
 import { emptyFormCustomization } from "@/types";
 import { defaultReminderEmailSettings } from "@/lib/reminder-email-defaults";
+import { defaultConfirmationEmailSettings } from "@/lib/confirmation-email-defaults";
 
 /**
  * Temporary in-process replacement for a real database (Supabase is not
@@ -46,6 +47,7 @@ const SEED_REGIONS: Region[] = [
     signup_form: emptyFormCustomization(),
     preregister_form: emptyFormCustomization(),
     reminder_email: defaultReminderEmailSettings(),
+    confirmation_email: defaultConfirmationEmailSettings(),
     created_at: new Date().toISOString(),
   },
 ];

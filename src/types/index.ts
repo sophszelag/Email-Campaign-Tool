@@ -37,6 +37,18 @@ export type ReminderEmailSettings = {
   reply_to_email: string;
 };
 
+// A region's pre-registration confirmation email: sent once someone
+// pre-registers for an event. Event location/dates/hours come through
+// merge fields (they vary per event) rather than being typed in here;
+// the trade-in guidelines (what we accept/don't accept) are fixed content
+// baked into the template itself, same for every region.
+export type ConfirmationEmailSettings = {
+  subject: string;
+  headline: string;
+  intro: string;
+  closing: string;
+};
+
 // A geographic area SidelineSwap runs trade-in events in — each gets its
 // own public signup form and (eventually) its own reminder cadence.
 export type Region = {
@@ -48,6 +60,7 @@ export type Region = {
   signup_form: FormCustomization;
   preregister_form: FormCustomization;
   reminder_email: ReminderEmailSettings;
+  confirmation_email: ConfirmationEmailSettings;
   created_at: string;
 };
 

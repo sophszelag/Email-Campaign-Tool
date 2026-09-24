@@ -10,6 +10,7 @@ export const REMINDER_EMAIL_MERGE_FIELDS: { field: string; description: string }
   { field: "{{event_name}}", description: "The event's name" },
   { field: "{{event_date}}", description: "The event's date" },
   { field: "{{event_venue}}", description: "The event's venue" },
+  { field: "{{event_hours}}", description: "The event's hours" },
   { field: "{{preregister_link}}", description: "Link to that event's pre-registration form" },
 ];
 

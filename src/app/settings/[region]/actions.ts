@@ -26,5 +26,23 @@ export async function updateReminderEmailSettings(regionId: string, formData: Fo
   if (Number.isFinite(days) && days > 0) region.reminder_email.send_days_before_event = days;
   region.reminder_email.reply_to_email = replyToEmail;
 
-  revalidatePath(`/settings/${region.slug}`);
+  revalidatePath(`/settings/${region.slug}/reminder`);
+}
+
+export async function updateConfirmationEmailSettings(regionId: string, formData: FormData) {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  if (!region) return;
+
+  const subject = (formData.get("subject") as string | null)?.trim();
+  const headline = (formData.get("headline") as string | null)?.trim();
+  const intro = (formData.get("intro") as string | null)?.trim();
+  const closing = (formData.get("closing") as string | null)?.trim();
+
+  if (subject) region.confirmation_email.subject = subject;
+  if (headline) region.confirmation_email.headline = headline;
+  if (intro) region.confirmation_email.intro = intro;
+  if (closing) region.confirmation_email.closing = closing;
+
+  revalidatePath(`/settings/${region.slug}/confirmation`);
 }

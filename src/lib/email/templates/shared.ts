@@ -8,6 +8,7 @@ export type ReminderEmailMergeData = {
   event_name: string;
   event_date: string;
   event_venue: string;
+  event_hours: string;
   preregister_link: string;
 };
 
@@ -18,6 +19,7 @@ export const SAMPLE_MERGE_DATA: ReminderEmailMergeData = {
   event_name: "South NJ / Philadelphia Trade-In Event",
   event_date: "Saturday, June 14",
   event_venue: "Dick's Sporting Goods – Cherry Hill",
+  event_hours: "10am–4pm",
   preregister_link: "https://example.com/preregister/south-nj-philadelphia",
 };
 
@@ -50,6 +52,7 @@ export function renderMergeText(raw: string, data: ReminderEmailMergeData): stri
     .replaceAll("{{event_name}}", escapeHtml(data.event_name))
     .replaceAll("{{event_date}}", escapeHtml(data.event_date))
     .replaceAll("{{event_venue}}", escapeHtml(data.event_venue))
+    .replaceAll("{{event_hours}}", escapeHtml(data.event_hours))
     .replaceAll("{{preregister_link}}", escapeHtml(data.preregister_link));
 }
 
