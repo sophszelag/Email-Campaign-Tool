@@ -12,6 +12,10 @@ export const REMINDER_EMAIL_MERGE_FIELDS: { field: string; description: string }
   { field: "{{event_venue}}", description: "The event's venue" },
   { field: "{{event_hours}}", description: "The event's hours" },
   { field: "{{preregister_link}}", description: "Link to that event's pre-registration form" },
+  {
+    field: "{{referral_link}}",
+    description: "The recipient's own unique referral link (only meaningful in the confirmation email)",
+  },
 ];
 
 export function defaultReminderEmailSettings(): ReminderEmailSettings {

@@ -93,6 +93,18 @@ export default function PreRegistrationForm({
       {eventId && <input type="hidden" name="event_id" value={eventId} />}
       {referredBy && <input type="hidden" name="referred_by" value={referredBy} />}
 
+      <div className="mb-6 rounded-lg border-[1.5px] border-[#cbecd6] bg-portal-green-tint p-4">
+        <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#047a32]">
+          💰 Refer friends, earn a bonus
+        </div>
+        <p className="text-xs leading-relaxed text-[#3a6650]">
+          Once you register, you&apos;ll get your own unique link to share with friends and
+          teammates. For every friend who pre-registers using it, you earn a{" "}
+          {REFERRAL_BONUS_PER_REFERRAL_PERCENT}% bonus on your trade-in — up to{" "}
+          {REFERRAL_BONUS_MAX_PERCENT}%.
+        </p>
+      </div>
+
       <FormSection title="Contact information">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <FormField label={label("first_name")} required>

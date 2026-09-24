@@ -10,6 +10,8 @@ export type ReminderEmailMergeData = {
   event_venue: string;
   event_hours: string;
   preregister_link: string;
+  /** The recipient's own unique referral link — empty string if none applies (e.g. the reminder email, sent before anyone's registered). */
+  referral_link: string;
 };
 
 // Sample data for the settings-page preview only — real sending (not
@@ -21,6 +23,7 @@ export const SAMPLE_MERGE_DATA: ReminderEmailMergeData = {
   event_venue: "Dick's Sporting Goods – Cherry Hill",
   event_hours: "10am–4pm",
   preregister_link: "https://example.com/preregister/south-nj-philadelphia",
+  referral_link: "https://example.com/preregister/event/evt_123?ref=preReg_456",
 };
 
 // The editable content every template renders — same shape regardless of
@@ -53,7 +56,8 @@ export function renderMergeText(raw: string, data: ReminderEmailMergeData): stri
     .replaceAll("{{event_date}}", escapeHtml(data.event_date))
     .replaceAll("{{event_venue}}", escapeHtml(data.event_venue))
     .replaceAll("{{event_hours}}", escapeHtml(data.event_hours))
-    .replaceAll("{{preregister_link}}", escapeHtml(data.preregister_link));
+    .replaceAll("{{preregister_link}}", escapeHtml(data.preregister_link))
+    .replaceAll("{{referral_link}}", escapeHtml(data.referral_link));
 }
 
 export function renderParagraphs(raw: string, data: ReminderEmailMergeData, className: string): string {

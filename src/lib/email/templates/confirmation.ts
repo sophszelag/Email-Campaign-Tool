@@ -52,6 +52,14 @@ export function renderConfirmationEmail(
   const acceptItems = WE_ACCEPT.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const declineItems = WE_DONT_ACCEPT.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 
+  const referralBlock = data.referral_link
+    ? `<div class="referral">
+        <p class="referral-eyebrow">💰 Earn a trade-in bonus</p>
+        <p class="referral-copy">Share your link with friends and teammates — for every friend who pre-registers using it, you get a 5% bonus on your trade-in, up to 15%.</p>
+        <a href="${escapeHtml(data.referral_link)}" class="referral-link">${escapeHtml(data.referral_link)}</a>
+      </div>`
+    : "";
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -87,6 +95,10 @@ export function renderConfirmationEmail(
   .guidelines-list li { font-size: 13px; line-height: 1.5; color: #171B1F; padding: 0 0 10px 22px; position: relative; }
   .guidelines-col.accept-col .guidelines-list li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #00A85D; font-weight: 900; }
   .guidelines-col.decline-col .guidelines-list li::before { content: "✕"; position: absolute; left: 0; top: 0; color: #D84C4C; font-weight: 900; }
+  .referral { background: #E6FAF1; border: 1.5px solid #B8EDD2; border-radius: 6px; padding: 20px 22px; margin: 8px 0 28px; }
+  .referral-eyebrow { font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #00753F; margin: 0 0 8px; }
+  .referral-copy { font-size: 13px; line-height: 1.55; color: #135432; margin: 0 0 14px; }
+  .referral-link { display: block; word-break: break-all; background: #FFFFFF; border-radius: 4px; padding: 12px 14px; font-size: 13px; color: #171B1F; text-decoration: none; font-weight: 500; }
   .divider { height: 1px; background: #E5E7E4; margin: 8px 0 0; }
   .footer { background: #253C32; padding: 28px 40px; text-align: center; margin-top: 16px; }
   .footer-copy { font-weight: 400; font-size: 12px; line-height: 1.7; color: #CCDCD4; margin: 0; }
@@ -136,6 +148,7 @@ export function renderConfirmationEmail(
         </div>
       </div>
 
+      ${referralBlock}
       ${closingHtml}
       <div class="divider"></div>
     </div>
