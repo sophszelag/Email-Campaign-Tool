@@ -6,6 +6,7 @@ import { store, newId } from "@/lib/db/store";
 import { parseEventsCsv } from "@/lib/events-csv";
 import { syncRegionEvents } from "@/lib/events-sync";
 import { defaultEventEmail } from "@/lib/event-email-defaults";
+import { geocodeAddress } from "@/lib/geocoding";
 import type { EmailTemplateId, EventStatus } from "@/types";
 
 export type UploadEventsResult = { ok: boolean; message: string };
@@ -40,7 +41,7 @@ export async function uploadEventsCsv(
     return { ok: false, message: `No valid rows found in that file. ${errors.join(" ")}`.trim() };
   }
 
-  const { added, updated, removed } = syncRegionEvents(region.id, rows);
+  const { added, updated, removed } = await syncRegionEvents(region.id, rows);
 
   revalidatePath(`/events/${region.slug}`);
   revalidatePath(`/preregister/${region.slug}`);
@@ -59,6 +60,8 @@ export async function addEvent(regionId: string, formData: FormData) {
   const fields = readEventFields(formData);
   if (!fields.venue || !fields.city_state || !fields.start_date) return;
 
+  const coordinates = await geocodeAddress(fields.city_state);
+
   store.events.push({
     id: newId(),
     region_id: region.id,
@@ -71,6 +74,8 @@ export async function addEvent(regionId: string, formData: FormData) {
     capacity: fields.capacity,
     email: null,
     status: "upcoming",
+    lat: coordinates?.lat ?? null,
+    lng: coordinates?.lng ?? null,
     created_at: new Date().toISOString(),
   });
 
@@ -100,7 +105,12 @@ export async function updateEvent(regionId: string, eventId: string, formData: F
 
   const fields = readEventFields(formData);
   if (fields.venue) event.venue = fields.venue;
-  if (fields.city_state) event.city_state = fields.city_state;
+  if (fields.city_state && fields.city_state !== event.city_state) {
+    event.city_state = fields.city_state;
+    const coordinates = await geocodeAddress(fields.city_state);
+    event.lat = coordinates?.lat ?? null;
+    event.lng = coordinates?.lng ?? null;
+  }
   if (fields.start_date) event.start_date = fields.start_date;
   event.end_date = fields.end_date;
   event.hours = fields.hours;

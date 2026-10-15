@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { store, newId } from "@/lib/db/store";
+import { geocodeAddress } from "@/lib/geocoding";
 import type { TravelRadius } from "@/types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,6 +73,8 @@ export async function submitReminderSignup(formData: FormData): Promise<SignupRe
     if (trimmed) custom_answers[q.id] = trimmed;
   }
 
+  const coordinates = await geocodeAddress(parsed.data.home_city_state);
+
   store.reminderSignups.push({
     id: newId(),
     region_id: region.id,
@@ -85,6 +88,8 @@ export async function submitReminderSignup(formData: FormData): Promise<SignupRe
     desired_subregions_other: otherText,
     requested_locations: parsed.data.requested_locations?.trim() || null,
     custom_answers,
+    lat: coordinates?.lat ?? null,
+    lng: coordinates?.lng ?? null,
     created_at: new Date().toISOString(),
   });
 

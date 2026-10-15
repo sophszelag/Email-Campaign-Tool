@@ -6,6 +6,7 @@ import { store } from "@/lib/db/store";
 import { EMAIL_TEMPLATES, renderReminderEmailHtml } from "@/lib/email/reminder-template";
 import { defaultEventEmail } from "@/lib/event-email-defaults";
 import { referralBonusPercent } from "@/types";
+import { matchSignupToEvent } from "@/lib/travel-match";
 import AppShell from "@/components/AppShell";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import { updateEvent, deleteEvent, initializeEventEmail, updateEventEmail, clearEventEmail } from "../actions";
@@ -47,6 +48,16 @@ export default async function EditEventPage({
   for (const p of preRegistrations) {
     if (p.referred_by) referralCounts.set(p.referred_by, (referralCounts.get(p.referred_by) ?? 0) + 1);
   }
+
+  // Every reminder signup in the region is a standing record, not tied
+  // to one event — re-match it against this event fresh, regardless of
+  // when they signed up, so someone who signed up before a prior event
+  // still gets picked up for this one.
+  const matchedSignups = store.reminderSignups
+    .filter((s) => s.region_id === region.id)
+    .map((s) => ({ signup: s, match: matchSignupToEvent(s, event) }))
+    .filter(({ match }) => match.matches)
+    .sort((a, b) => (a.match.distanceMiles ?? Infinity) - (b.match.distanceMiles ?? Infinity));
 
   return (
     <AppShell userEmail={session.user!.email!} title="Edit event" subtitle={region.name}>
@@ -357,6 +368,54 @@ export default async function EditEventPage({
               </div>
             </div>
           </>
+        )}
+      </section>
+
+      <section className="mt-6 rounded-[10px] border bg-white p-5 shadow-sm">
+        <h2 className="mb-1 text-sm font-bold text-turf-green-500">
+          Reminder signups within travel radius ({matchedSignups.length})
+        </h2>
+        <p className="mb-4 text-[13px] text-slate-green-500">
+          Everyone who signed up for reminders and is close enough to reach out to for this event —
+          including signups from before this event existed, matched fresh by real driving distance
+          where we have coordinates for both sides, or by their desired areas otherwise.
+        </p>
+
+        {matchedSignups.length > 0 ? (
+          <div className="overflow-hidden overflow-x-auto rounded-[10px] border">
+            <table className="w-full min-w-[700px] text-left text-sm">
+              <thead>
+                <tr className="bg-offwhite">
+                  <Th>Name</Th>
+                  <Th>Location</Th>
+                  <Th>Travel radius</Th>
+                  <Th>Distance to event</Th>
+                  <Th>Signed up</Th>
+                </tr>
+              </thead>
+              <tbody>
+                {matchedSignups.map(({ signup, match }) => (
+                  <tr key={signup.id} className="border-b border-pastel-green-500 last:border-0 align-top">
+                    <td className="px-4 py-3 font-medium text-turf-green-500">{signup.full_name}</td>
+                    <td className="px-4 py-3 text-turf-green-500">{signup.home_city_state}</td>
+                    <td className="px-4 py-3 text-turf-green-500">
+                      {signup.travel_radius === "any" ? "Any distance" : `${signup.travel_radius} mi`}
+                    </td>
+                    <td className="px-4 py-3 text-turf-green-500">
+                      {match.distanceMiles != null
+                        ? `${match.distanceMiles.toFixed(1)} mi`
+                        : "— (matched by area)"}
+                    </td>
+                    <td className="px-4 py-3 text-slate-green-500">
+                      {new Date(signup.created_at).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-slate-green-500">No reminder signups match this event yet.</p>
         )}
       </section>
 

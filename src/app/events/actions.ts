@@ -40,7 +40,7 @@ export async function uploadTeamEventsCsv(
     const region = store.regions.find((r) => r.id === regionId);
     if (!region) continue;
 
-    const { added, updated, removed } = syncRegionEvents(regionId, rows);
+    const { added, updated, removed } = await syncRegionEvents(regionId, rows);
     touchedSummaries.push(`${region.name}: ${added} added, ${updated} updated, ${removed} removed`);
     revalidatePath(`/events/${region.slug}`);
     revalidatePath(`/preregister/${region.slug}`);

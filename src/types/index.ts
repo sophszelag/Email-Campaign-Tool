@@ -127,6 +127,9 @@ export type TradeInEvent = {
   /** This event's own reminder email, if a coordinator has set one up. Null falls back to the region's generic reminder_email. */
   email: EventEmail | null;
   status: EventStatus;
+  /** Geocoded from city_state, for real driving-distance matching against reminder signups. Null if geocoding hasn't run yet or failed — matching falls back to the subregion checklist. */
+  lat: number | null;
+  lng: number | null;
   created_at: string;
 };
 
@@ -148,6 +151,16 @@ export type ReminderSignup = {
   requested_locations: string | null;
   /** Answers to this region's custom questions, keyed by CustomQuestion.id. */
   custom_answers: Record<string, string>;
+  /**
+   * Geocoded from home_city_state. This signup is a standing record, not
+   * tied to one event — these coordinates plus travel_radius let it be
+   * matched by real driving distance against every future event in the
+   * region, not just the one nearest when they signed up. Null if
+   * geocoding hasn't run yet or failed — matching falls back to the
+   * desired_subregions checklist.
+   */
+  lat: number | null;
+  lng: number | null;
   created_at: string;
 };
 
