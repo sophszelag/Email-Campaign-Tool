@@ -28,7 +28,10 @@ export default async function RegionSettingsIndexPage({
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
+        Email templates
+      </div>
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Link
           href={`/settings/${region.slug}/reminder`}
           className="rounded-[10px] border border-t-[4px] border-t-green-500 bg-white p-5 shadow-sm hover:border-green-500"
@@ -36,7 +39,8 @@ export default async function RegionSettingsIndexPage({
           <div className="mb-2 text-2xl">🔔</div>
           <div className="mb-1 font-bold text-turf-green-500">Event Reminder Email</div>
           <p className="text-[13px] text-slate-green-500">
-            Sent to someone who signed up for reminders, a set number of days before an event.
+            Sent to someone who signed up for reminders, a set number of days before an event — edit
+            the wording and how many days ahead it sends.
           </p>
         </Link>
 
@@ -49,6 +53,33 @@ export default async function RegionSettingsIndexPage({
           <p className="text-[13px] text-slate-green-500">
             Sent immediately after someone pre-registers — confirms it, and includes event details
             and trade-in guidelines.
+          </p>
+        </Link>
+      </div>
+
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
+        Forms
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Link
+          href={`/forms/${region.slug}/edit/signup`}
+          className="rounded-[10px] border border-t-[4px] border-t-pastel-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
+        >
+          <div className="mb-2 text-2xl">📝</div>
+          <div className="mb-1 font-bold text-turf-green-500">Reminder Signup Form</div>
+          <p className="text-[13px] text-slate-green-500">
+            Reword questions or add custom ones for the public reminder signup form.
+          </p>
+        </Link>
+
+        <Link
+          href={`/forms/${region.slug}/edit/preregister`}
+          className="rounded-[10px] border border-t-[4px] border-t-pastel-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
+        >
+          <div className="mb-2 text-2xl">📋</div>
+          <div className="mb-1 font-bold text-turf-green-500">Trade-In Pre-Registration Form</div>
+          <p className="text-[13px] text-slate-green-500">
+            Reword questions or add custom ones for the public pre-registration form.
           </p>
         </Link>
       </div>
