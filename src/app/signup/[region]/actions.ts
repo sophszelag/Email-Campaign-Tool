@@ -44,6 +44,9 @@ export async function submitReminderSignup(formData: FormData): Promise<SignupRe
   if (!region) {
     return { ok: false, message: "This signup form isn't available right now." };
   }
+  if (!region.features.reminder_signup) {
+    return { ok: false, message: "Reminder signups aren't available right now." };
+  }
 
   const emails = Array.from(
     new Set(

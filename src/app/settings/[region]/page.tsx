@@ -17,6 +17,8 @@ export default async function RegionSettingsIndexPage({
   const region = store.regions.find((r) => r.slug === slug);
   if (!region) notFound();
 
+  const { reminder_signup, pre_registration, referral_program } = region.features;
+
   return (
     <AppShell userEmail={session.user!.email!} title="Settings" subtitle={region.name}>
       <div className="mb-6">
@@ -29,6 +31,23 @@ export default async function RegionSettingsIndexPage({
       </div>
 
       <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
+        Feature toggles
+      </div>
+      <div className="mb-8">
+        <Link
+          href={`/settings/${region.slug}/features`}
+          className="block rounded-[10px] border border-t-[4px] border-t-turf-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
+        >
+          <div className="mb-2 text-2xl">🎛️</div>
+          <div className="mb-1 font-bold text-turf-green-500">Feature Toggles</div>
+          <p className="text-[13px] text-slate-green-500">
+            Turn Reminder Signup, Pre-Registration, or the Referral Program on or off for this
+            region.
+          </p>
+        </Link>
+      </div>
+
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
         Email templates
       </div>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -36,7 +55,9 @@ export default async function RegionSettingsIndexPage({
           href={`/settings/${region.slug}/signup-confirmation`}
           className="rounded-[10px] border border-t-[4px] border-t-pastel-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
         >
-          <div className="mb-2 text-2xl">📨</div>
+          <div className="mb-2 flex items-center gap-2 text-2xl">
+            📨 <OffBadge enabled={reminder_signup} />
+          </div>
           <div className="mb-1 font-bold text-turf-green-500">Reminder Signup Confirmation Email</div>
           <p className="text-[13px] text-slate-green-500">
             Sent immediately after someone fills out the reminder signup form — summarizes what
@@ -60,7 +81,9 @@ export default async function RegionSettingsIndexPage({
           href={`/settings/${region.slug}/confirmation`}
           className="rounded-[10px] border border-t-[4px] border-t-turf-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
         >
-          <div className="mb-2 text-2xl">✅</div>
+          <div className="mb-2 flex items-center gap-2 text-2xl">
+            ✅ <OffBadge enabled={pre_registration} />
+          </div>
           <div className="mb-1 font-bold text-turf-green-500">Pre-Registration Confirmation Email</div>
           <p className="text-[13px] text-slate-green-500">
             Sent immediately after someone pre-registers — confirms it, and includes event details
@@ -77,7 +100,9 @@ export default async function RegionSettingsIndexPage({
           href={`/forms/${region.slug}/edit/signup`}
           className="rounded-[10px] border border-t-[4px] border-t-pastel-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
         >
-          <div className="mb-2 text-2xl">📝</div>
+          <div className="mb-2 flex items-center gap-2 text-2xl">
+            📝 <OffBadge enabled={reminder_signup} />
+          </div>
           <div className="mb-1 font-bold text-turf-green-500">Reminder Signup Form</div>
           <p className="text-[13px] text-slate-green-500">
             Reword questions or add custom ones for the public reminder signup form.
@@ -88,7 +113,9 @@ export default async function RegionSettingsIndexPage({
           href={`/forms/${region.slug}/edit/preregister`}
           className="rounded-[10px] border border-t-[4px] border-t-pastel-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
         >
-          <div className="mb-2 text-2xl">📋</div>
+          <div className="mb-2 flex items-center gap-2 text-2xl">
+            📋 <OffBadge enabled={pre_registration} />
+          </div>
           <div className="mb-1 font-bold text-turf-green-500">Trade-In Pre-Registration Form</div>
           <p className="text-[13px] text-slate-green-500">
             Reword questions or add custom ones for the public pre-registration form.
@@ -104,7 +131,9 @@ export default async function RegionSettingsIndexPage({
           href={`/settings/${region.slug}/referral-program`}
           className="rounded-[10px] border border-t-[4px] border-t-green-500 bg-white p-5 shadow-sm hover:border-green-500"
         >
-          <div className="mb-2 text-2xl">💰</div>
+          <div className="mb-2 flex items-center gap-2 text-2xl">
+            💰 <OffBadge enabled={referral_program && pre_registration} />
+          </div>
           <div className="mb-1 font-bold text-turf-green-500">Referral Program</div>
           <p className="text-[13px] text-slate-green-500">
             Set the trade-in bonus percentage per referral and the maximum cap.
@@ -123,5 +152,14 @@ export default async function RegionSettingsIndexPage({
         </Link>
       </div>
     </AppShell>
+  );
+}
+
+function OffBadge({ enabled }: { enabled: boolean }) {
+  if (enabled) return null;
+  return (
+    <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em] text-red-500">
+      Off
+    </span>
   );
 }

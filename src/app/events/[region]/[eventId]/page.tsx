@@ -422,9 +422,9 @@ export default async function EditEventPage({
       <section className="mt-6 rounded-[10px] border bg-white p-5 shadow-sm">
         <h2 className="mb-1 text-sm font-bold text-turf-green-500">Pre-registrations for this event</h2>
         <p className="mb-4 text-[13px] text-slate-green-500">
-          Everyone who&apos;s pre-registered, and their referral activity — every friend who signs up
-          using someone&apos;s link is worth a {region.referral_program.per_referral_percent}%
-          trade-in bonus for them, up to {region.referral_program.max_percent}%.
+          {region.features.referral_program
+            ? `Everyone who's pre-registered, and their referral activity — every friend who signs up using someone's link is worth a ${region.referral_program.per_referral_percent}% trade-in bonus for them, up to ${region.referral_program.max_percent}%.`
+            : "Everyone who's pre-registered for this event. The referral program is currently off for this region."}
         </p>
 
         <div className="overflow-hidden overflow-x-auto rounded-[10px] border">
@@ -434,9 +434,13 @@ export default async function EditEventPage({
                 <Th>Name</Th>
                 <Th>Email</Th>
                 <Th>Phone</Th>
-                <Th>Referred by</Th>
-                <Th>Referrals</Th>
-                <Th>Bonus</Th>
+                {region.features.referral_program && (
+                  <>
+                    <Th>Referred by</Th>
+                    <Th>Referrals</Th>
+                    <Th>Bonus</Th>
+                  </>
+                )}
                 <Th>Submitted</Th>
               </tr>
             </thead>
@@ -452,13 +456,17 @@ export default async function EditEventPage({
                     </td>
                     <td className="px-4 py-3 text-turf-green-500">{p.email}</td>
                     <td className="px-4 py-3 text-turf-green-500">{p.phone}</td>
-                    <td className="px-4 py-3 text-turf-green-500">
-                      {referrer ? `${referrer.first_name} ${referrer.last_name}` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-turf-green-500">{referralCount}</td>
-                    <td className="px-4 py-3 font-medium text-turf-green-500">
-                      {bonus > 0 ? `${bonus}%` : "—"}
-                    </td>
+                    {region.features.referral_program && (
+                      <>
+                        <td className="px-4 py-3 text-turf-green-500">
+                          {referrer ? `${referrer.first_name} ${referrer.last_name}` : "—"}
+                        </td>
+                        <td className="px-4 py-3 text-turf-green-500">{referralCount}</td>
+                        <td className="px-4 py-3 font-medium text-turf-green-500">
+                          {bonus > 0 ? `${bonus}%` : "—"}
+                        </td>
+                      </>
+                    )}
                     <td className="px-4 py-3 text-slate-green-500">
                       {new Date(p.created_at).toLocaleDateString()}
                     </td>
@@ -467,7 +475,10 @@ export default async function EditEventPage({
               })}
               {preRegistrations.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-slate-green-500">
+                  <td
+                    colSpan={region.features.referral_program ? 7 : 4}
+                    className="px-4 py-10 text-center text-slate-green-500"
+                  >
                     No pre-registrations for this event yet.
                   </td>
                 </tr>

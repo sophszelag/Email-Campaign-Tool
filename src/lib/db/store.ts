@@ -5,6 +5,7 @@ import { defaultReminderEmailSettings } from "@/lib/reminder-email-defaults";
 import { defaultConfirmationEmailSettings } from "@/lib/confirmation-email-defaults";
 import { defaultSignupConfirmationEmailSettings } from "@/lib/signup-confirmation-email-defaults";
 import { defaultReferralProgramSettings } from "@/lib/referral-program-defaults";
+import { defaultFeatureToggles } from "@/lib/feature-toggles-defaults";
 
 /**
  * Temporary in-process replacement for a real database (Supabase is not
@@ -52,6 +53,7 @@ const SEED_REGIONS: Region[] = [
     confirmation_email: defaultConfirmationEmailSettings(),
     signup_confirmation_email: defaultSignupConfirmationEmailSettings(),
     referral_program: defaultReferralProgramSettings(),
+    features: defaultFeatureToggles(),
     created_at: new Date().toISOString(),
   },
 ];

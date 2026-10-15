@@ -14,6 +14,20 @@ export default async function RegionSignupPage({
   const region = store.regions.find((r) => r.slug === slug);
   if (!region) notFound();
 
+  if (!region.features.reminder_signup) {
+    return (
+      <PortalPage title="Event Reminders" subtitle="Not available right now">
+        <h1 className="mb-1.5 text-[32px] font-extrabold tracking-tight text-portal-ink sm:text-[36px]">
+          Reminder signups aren&apos;t open right now
+        </h1>
+        <p className="text-[15px] leading-relaxed text-portal-ink-secondary">
+          Check back soon, or reach out to SidelineSwap directly for upcoming trade-in events near
+          you.
+        </p>
+      </PortalPage>
+    );
+  }
+
   return (
     <PortalPage title="Event Reminders" subtitle={region.name}>
       <h1 className="mb-1.5 text-[32px] font-extrabold tracking-tight text-portal-ink sm:text-[36px]">

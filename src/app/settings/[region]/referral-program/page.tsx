@@ -34,6 +34,17 @@ export default async function ReferralProgramSettingsPage({
         </Link>
       </div>
 
+      {!region.features.referral_program && (
+        <div className="mb-5 rounded-[10px] border border-red-200 bg-red-50 p-4 text-[13px] text-red-500">
+          The referral program is currently turned off for this region. These numbers won&apos;t show
+          anywhere until you turn it back on in{" "}
+          <Link href={`/settings/${region.slug}/features`} className="font-bold underline">
+            Feature Toggles
+          </Link>
+          .
+        </div>
+      )}
+
       <div className="mb-5 flex items-center gap-2">
         <span className="rounded-full bg-green-100 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.06em] text-green-700">
           💰 Referral program

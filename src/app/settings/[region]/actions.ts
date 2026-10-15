@@ -72,6 +72,19 @@ export async function updateSignupConfirmationEmailSettings(regionId: string, fo
   revalidatePath(`/settings/${region.slug}/signup-confirmation`);
 }
 
+export async function updateFeatureToggles(regionId: string, formData: FormData) {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  if (!region) return;
+
+  region.features.reminder_signup = formData.get("reminder_signup") === "on";
+  region.features.pre_registration = formData.get("pre_registration") === "on";
+  region.features.referral_program = formData.get("referral_program") === "on";
+
+  revalidatePath(`/settings/${region.slug}/features`);
+  revalidatePath(`/settings/${region.slug}`);
+}
+
 export async function updateReferralProgramSettings(regionId: string, formData: FormData) {
   await requireSession();
   const region = store.regions.find((r) => r.id === regionId);

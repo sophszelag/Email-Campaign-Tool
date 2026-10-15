@@ -170,7 +170,7 @@ export default async function RegionRemindersPage({
                     <Th>Phone</Th>
                     <Th>Sport</Th>
                     <Th>Items</Th>
-                    <Th>Referrals</Th>
+                    {region.features.referral_program && <Th>Referrals</Th>}
                     <Th>Submitted</Th>
                   </tr>
                 </thead>
@@ -184,7 +184,9 @@ export default async function RegionRemindersPage({
                       <td className="px-4 py-3 text-turf-green-500">{p.phone}</td>
                       <td className="px-4 py-3 capitalize text-turf-green-500">{p.sports.join(", ")}</td>
                       <td className="px-4 py-3 text-turf-green-500">{p.item_count}</td>
-                      <td className="px-4 py-3 text-turf-green-500">{referralCounts.get(p.id) ?? 0}</td>
+                      {region.features.referral_program && (
+                        <td className="px-4 py-3 text-turf-green-500">{referralCounts.get(p.id) ?? 0}</td>
+                      )}
                       <td className="px-4 py-3 text-slate-green-500">
                         {new Date(p.created_at).toLocaleDateString()}
                       </td>

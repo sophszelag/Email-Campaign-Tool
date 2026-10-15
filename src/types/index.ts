@@ -69,6 +69,17 @@ export type ReferralProgramSettings = {
   max_percent: number;
 };
 
+// Per-region on/off switches for whole customer-facing areas of the
+// tool. Each bundles a public form together with the email(s) tied to
+// it, rather than exposing every combination separately — turning off
+// "pre_registration" turns off both the form and its confirmation
+// email at once, since one without the other doesn't make sense.
+export type FeatureToggles = {
+  reminder_signup: boolean;
+  pre_registration: boolean;
+  referral_program: boolean;
+};
+
 // A geographic area SidelineSwap runs trade-in events in — each gets its
 // own public signup form and (eventually) its own reminder cadence.
 export type Region = {
@@ -83,6 +94,7 @@ export type Region = {
   confirmation_email: ConfirmationEmailSettings;
   signup_confirmation_email: SignupConfirmationEmailSettings;
   referral_program: ReferralProgramSettings;
+  features: FeatureToggles;
   created_at: string;
 };
 

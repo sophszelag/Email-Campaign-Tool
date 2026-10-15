@@ -22,9 +22,26 @@ export default async function PreRegisterForEventPage({
   const region = store.regions.find((r) => r.id === event.region_id);
   if (!region) notFound();
 
+  if (!region.features.pre_registration) {
+    return (
+      <PortalPage title="Trade-In Self Registration" subtitle="Not available right now">
+        <h1 className="mb-1.5 text-[32px] font-extrabold tracking-tight text-portal-ink sm:text-[36px]">
+          Pre-registration isn&apos;t open right now
+        </h1>
+        <p className="text-[15px] leading-relaxed text-portal-ink-secondary">
+          Check with SidelineSwap for other upcoming trade-in events near you.
+        </p>
+      </PortalPage>
+    );
+  }
+
   // Only trust a referral link if it actually points at someone who
-  // registered for this same event — otherwise it's just ignored.
-  const referrer = ref ? store.preRegistrations.find((p) => p.id === ref && p.event_id === event.id) : null;
+  // registered for this same event, and only while the referral program
+  // is on — otherwise it's ignored.
+  const referrer =
+    ref && region.features.referral_program
+      ? store.preRegistrations.find((p) => p.id === ref && p.event_id === event.id)
+      : null;
 
   if (event.status !== "upcoming") {
     return (
@@ -71,6 +88,7 @@ export default async function PreRegisterForEventPage({
         fieldLabels={region.preregister_form.field_labels}
         customQuestions={region.preregister_form.custom_questions}
         referralProgram={region.referral_program}
+        referralEnabled={region.features.referral_program}
       />
     </PortalPage>
   );

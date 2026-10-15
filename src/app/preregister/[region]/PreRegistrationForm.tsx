@@ -44,6 +44,7 @@ export default function PreRegistrationForm({
   fieldLabels,
   customQuestions,
   referralProgram,
+  referralEnabled,
 }: {
   regionId: string;
   eventId: string | null;
@@ -51,6 +52,7 @@ export default function PreRegistrationForm({
   fieldLabels: Record<string, string>;
   customQuestions: CustomQuestion[];
   referralProgram: ReferralProgramSettings;
+  referralEnabled: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(
     async (_prev: PreRegResult, formData: FormData) => submitPreRegistration(formData),
@@ -139,17 +141,19 @@ export default function PreRegistrationForm({
         </FormField>
       </FormSection>
 
-      <div className="mb-6 rounded-lg border-[1.5px] border-[#cbecd6] bg-portal-green-tint p-4">
-        <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#047a32]">
-          💰 Refer friends, earn a bonus
+      {referralEnabled && (
+        <div className="mb-6 rounded-lg border-[1.5px] border-[#cbecd6] bg-portal-green-tint p-4">
+          <div className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#047a32]">
+            💰 Refer friends, earn a bonus
+          </div>
+          <p className="text-xs leading-relaxed text-[#3a6650]">
+            Once you register, you&apos;ll get your own unique link to share with friends and
+            teammates. For every friend who pre-registers using it, you earn a{" "}
+            {referralProgram.per_referral_percent}% bonus on your trade-in — up to{" "}
+            {referralProgram.max_percent}%.
+          </p>
         </div>
-        <p className="text-xs leading-relaxed text-[#3a6650]">
-          Once you register, you&apos;ll get your own unique link to share with friends and
-          teammates. For every friend who pre-registers using it, you earn a{" "}
-          {referralProgram.per_referral_percent}% bonus on your trade-in — up to{" "}
-          {referralProgram.max_percent}%.
-        </p>
-      </div>
+      )}
 
       <CustomQuestionFields questions={customQuestions} />
 

@@ -46,6 +46,9 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
   if (!region) {
     return { ok: false, message: "This registration form isn't available right now." };
   }
+  if (!region.features.pre_registration) {
+    return { ok: false, message: "Pre-registration isn't available right now." };
+  }
 
   const email = parsed.data.email.trim().toLowerCase();
   if (!EMAIL_RE.test(email)) {
@@ -56,8 +59,10 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
 
   // A referral only counts if it points at a real pre-registration for
   // this same event — anything else (stale link, tampered id, an event
-  // that's since changed) is silently dropped rather than trusted.
-  const rawReferredBy = parsed.data.referred_by?.trim() || null;
+  // that's since changed) is silently dropped rather than trusted. If
+  // the referral program is off, referrals aren't honored at all, even
+  // from an old link someone still has.
+  const rawReferredBy = region.features.referral_program ? parsed.data.referred_by?.trim() || null : null;
   const referrer = rawReferredBy
     ? store.preRegistrations.find((p) => p.id === rawReferredBy && p.event_id === eventId)
     : null;
@@ -90,7 +95,7 @@ export async function submitPreRegistration(formData: FormData): Promise<PreRegR
   });
 
   let referralLink: string | undefined;
-  if (eventId) {
+  if (eventId && region.features.referral_program) {
     const hdrs = await headers();
     const origin = `${hdrs.get("x-forwarded-proto") ?? "https"}://${hdrs.get("host")}`;
     referralLink = `${origin}/preregister/event/${eventId}?ref=${id}`;
