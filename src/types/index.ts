@@ -27,6 +27,8 @@ export function emptyFormCustomization(): FormCustomization {
 // (sample data), see reminder-email-defaults.ts for the full list and
 // why real sending isn't wired up.
 export type ReminderEmailSettings = {
+  /** The visual design this region's reminder email uses by default. A per-event override (TradeInEvent.email) takes precedence when set. */
+  template_id: EmailTemplateId;
   subject: string;
   headline: string;
   intro: string;
@@ -49,6 +51,13 @@ export type ConfirmationEmailSettings = {
   closing: string;
 };
 
+// How much of a trade-in bonus a pre-registrant earns per friend who signs
+// up with their referral link, capped at max_percent.
+export type ReferralProgramSettings = {
+  per_referral_percent: number;
+  max_percent: number;
+};
+
 // A geographic area SidelineSwap runs trade-in events in — each gets its
 // own public signup form and (eventually) its own reminder cadence.
 export type Region = {
@@ -61,6 +70,7 @@ export type Region = {
   preregister_form: FormCustomization;
   reminder_email: ReminderEmailSettings;
   confirmation_email: ConfirmationEmailSettings;
+  referral_program: ReferralProgramSettings;
   created_at: string;
 };
 
@@ -158,7 +168,7 @@ export type PreRegistration = {
   /**
    * The id of the PreRegistration whose referral link this person used to
    * sign up, if any. Doubles as that person's trade-in bonus credit — see
-   * REFERRAL_BONUS_PER_REFERRAL_PERCENT / REFERRAL_BONUS_MAX_PERCENT below.
+   * referralBonusPercent() and the region's ReferralProgramSettings below.
    * Null if they registered directly (no referral link).
    */
   referred_by: string | null;
@@ -167,11 +177,9 @@ export type PreRegistration = {
   created_at: string;
 };
 
-// Every successful referral (a friend who pre-registers using your link)
-// is worth a 5% trade-in bonus, capped at 15% (3 referrals).
-export const REFERRAL_BONUS_PER_REFERRAL_PERCENT = 5;
-export const REFERRAL_BONUS_MAX_PERCENT = 15;
-
-export function referralBonusPercent(referralCount: number): number {
-  return Math.min(referralCount * REFERRAL_BONUS_PER_REFERRAL_PERCENT, REFERRAL_BONUS_MAX_PERCENT);
+// Every successful referral (a friend who pre-registers using your link) is
+// worth a bonus, capped at a region's configured max — see
+// ReferralProgramSettings (Settings > Referral Program, per region).
+export function referralBonusPercent(referralCount: number, settings: ReferralProgramSettings): number {
+  return Math.min(referralCount * settings.per_referral_percent, settings.max_percent);
 }

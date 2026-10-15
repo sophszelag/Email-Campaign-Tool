@@ -60,7 +60,7 @@ export default async function RegionSettingsIndexPage({
       <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
         Forms
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Link
           href={`/forms/${region.slug}/edit/signup`}
           className="rounded-[10px] border border-t-[4px] border-t-pastel-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
@@ -80,6 +80,33 @@ export default async function RegionSettingsIndexPage({
           <div className="mb-1 font-bold text-turf-green-500">Trade-In Pre-Registration Form</div>
           <p className="text-[13px] text-slate-green-500">
             Reword questions or add custom ones for the public pre-registration form.
+          </p>
+        </Link>
+      </div>
+
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.1em] text-slate-green-500">
+        Program settings
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Link
+          href={`/settings/${region.slug}/referral-program`}
+          className="rounded-[10px] border border-t-[4px] border-t-green-500 bg-white p-5 shadow-sm hover:border-green-500"
+        >
+          <div className="mb-2 text-2xl">💰</div>
+          <div className="mb-1 font-bold text-turf-green-500">Referral Program</div>
+          <p className="text-[13px] text-slate-green-500">
+            Set the trade-in bonus percentage per referral and the maximum cap.
+          </p>
+        </Link>
+
+        <Link
+          href={`/settings/${region.slug}/areas`}
+          className="rounded-[10px] border border-t-[4px] border-t-turf-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
+        >
+          <div className="mb-2 text-2xl">🗺️</div>
+          <div className="mb-1 font-bold text-turf-green-500">Travel Areas</div>
+          <p className="text-[13px] text-slate-green-500">
+            Add or remove the areas customers pick from on the reminder signup form.
           </p>
         </Link>
       </div>

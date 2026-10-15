@@ -3,7 +3,7 @@ import type { EventEmail, Region } from "@/types";
 /** Seeds a new per-event email from the region's generic reminder-email content, so a coordinator edits from something rather than a blank form. */
 export function defaultEventEmail(region: Region): EventEmail {
   return {
-    template_id: "classic",
+    template_id: region.reminder_email.template_id,
     subject: region.reminder_email.subject,
     headline: region.reminder_email.headline,
     intro: region.reminder_email.intro,

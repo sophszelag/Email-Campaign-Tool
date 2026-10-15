@@ -364,7 +364,8 @@ export default async function EditEventPage({
         <h2 className="mb-1 text-sm font-bold text-turf-green-500">Pre-registrations for this event</h2>
         <p className="mb-4 text-[13px] text-slate-green-500">
           Everyone who&apos;s pre-registered, and their referral activity — every friend who signs up
-          using someone&apos;s link is worth a 5% trade-in bonus for them, up to 15%.
+          using someone&apos;s link is worth a {region.referral_program.per_referral_percent}%
+          trade-in bonus for them, up to {region.referral_program.max_percent}%.
         </p>
 
         <div className="overflow-hidden overflow-x-auto rounded-[10px] border">
@@ -384,7 +385,7 @@ export default async function EditEventPage({
               {preRegistrations.map((p) => {
                 const referrer = p.referred_by ? preRegById.get(p.referred_by) : null;
                 const referralCount = referralCounts.get(p.id) ?? 0;
-                const bonus = referralBonusPercent(referralCount);
+                const bonus = referralBonusPercent(referralCount, region.referral_program);
                 return (
                   <tr key={p.id} className="border-b border-pastel-green-500 last:border-0 align-top">
                     <td className="px-4 py-3 font-medium text-turf-green-500">

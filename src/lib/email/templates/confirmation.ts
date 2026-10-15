@@ -6,6 +6,7 @@ import {
   MAILING_ADDRESS,
   type ReminderEmailMergeData,
 } from "./shared";
+import type { ReferralProgramSettings } from "@/types";
 
 export type ConfirmationEmailContent = {
   subject: string;
@@ -42,7 +43,8 @@ const WE_DONT_ACCEPT = [
  */
 export function renderConfirmationEmail(
   content: ConfirmationEmailContent,
-  data: ReminderEmailMergeData
+  data: ReminderEmailMergeData,
+  referralProgram: ReferralProgramSettings
 ): string {
   const subject = renderMergeText(content.subject, data);
   const headline = renderMergeText(content.headline, data);
@@ -55,7 +57,7 @@ export function renderConfirmationEmail(
   const referralBlock = data.referral_link
     ? `<div class="referral">
         <p class="referral-eyebrow">💰 Earn a trade-in bonus</p>
-        <p class="referral-copy">Share your link with friends and teammates — for every friend who pre-registers using it, you get a 5% bonus on your trade-in, up to 15%.</p>
+        <p class="referral-copy">Share your link with friends and teammates — for every friend who pre-registers using it, you get a ${referralProgram.per_referral_percent}% bonus on your trade-in, up to ${referralProgram.max_percent}%.</p>
         <a href="${escapeHtml(data.referral_link)}" class="referral-link">${escapeHtml(data.referral_link)}</a>
       </div>`
     : "";

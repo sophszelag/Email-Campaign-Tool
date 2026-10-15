@@ -47,6 +47,7 @@ export default async function PreRegisterPage({
         eventId={event?.id ?? null}
         fieldLabels={region.preregister_form.field_labels}
         customQuestions={region.preregister_form.custom_questions}
+        referralProgram={region.referral_program}
       />
     </PortalPage>
   );

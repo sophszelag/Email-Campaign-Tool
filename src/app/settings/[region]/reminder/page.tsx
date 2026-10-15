@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireSession } from "@/lib/session";
 import { store } from "@/lib/db/store";
 import { REMINDER_EMAIL_MERGE_FIELDS } from "@/lib/reminder-email-defaults";
-import { renderReminderEmailHtml } from "@/lib/email/reminder-template";
+import { renderReminderEmailHtml, EMAIL_TEMPLATES } from "@/lib/email/reminder-template";
 import AppShell from "@/components/AppShell";
 import { updateReminderEmailSettings } from "../actions";
 
@@ -21,7 +21,7 @@ export default async function ReminderEmailSettingsPage({
   if (!region) notFound();
 
   const boundUpdate = updateReminderEmailSettings.bind(null, region.id);
-  const previewHtml = renderReminderEmailHtml("classic", region.reminder_email);
+  const previewHtml = renderReminderEmailHtml(region.reminder_email.template_id, region.reminder_email);
 
   return (
     <AppShell userEmail={session.user!.email!} title="Settings" subtitle={region.name}>
@@ -52,6 +52,35 @@ export default async function ReminderEmailSettingsPage({
           </p>
 
           <form action={boundUpdate} className="space-y-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
+                Template
+              </label>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {EMAIL_TEMPLATES.map((t) => (
+                  <label
+                    key={t.id}
+                    className="flex cursor-pointer flex-col gap-1 rounded-md border p-3 has-[:checked]:border-turf-green-500 has-[:checked]:bg-pastel-green-500/20"
+                  >
+                    <span className="flex items-center gap-2 text-sm font-bold text-turf-green-500">
+                      <input
+                        type="radio"
+                        name="template_id"
+                        value={t.id}
+                        defaultChecked={region.reminder_email.template_id === t.id}
+                      />
+                      {t.name}
+                    </span>
+                    <span className="text-xs text-slate-green-500">{t.description}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-slate-green-500">
+                The default for this region&apos;s reminder email. Any event can still override it
+                with its own template.
+              </p>
+            </div>
+
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-bold uppercase tracking-[0.08em] text-slate-green-500">
                 Subject

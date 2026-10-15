@@ -14,8 +14,7 @@ import {
 } from "@/components/portal/PortalForm";
 import CopyLinkButton from "@/components/CopyLinkButton";
 import { PREREGISTER_FIELD_DEFAULTS, getFieldLabel } from "@/lib/form-defaults";
-import type { CustomQuestion } from "@/types";
-import { REFERRAL_BONUS_PER_REFERRAL_PERCENT, REFERRAL_BONUS_MAX_PERCENT } from "@/types";
+import type { CustomQuestion, ReferralProgramSettings } from "@/types";
 
 const initialState: PreRegResult = { ok: false, message: "" };
 
@@ -44,12 +43,14 @@ export default function PreRegistrationForm({
   referredBy,
   fieldLabels,
   customQuestions,
+  referralProgram,
 }: {
   regionId: string;
   eventId: string | null;
   referredBy?: string | null;
   fieldLabels: Record<string, string>;
   customQuestions: CustomQuestion[];
+  referralProgram: ReferralProgramSettings;
 }) {
   const [state, formAction, isPending] = useActionState(
     async (_prev: PreRegResult, formData: FormData) => submitPreRegistration(formData),
@@ -71,8 +72,8 @@ export default function PreRegistrationForm({
               </div>
               <p className="mb-3 text-xs leading-relaxed text-[#3a6650]">
                 Share your link with friends and teammates — for every friend who pre-registers
-                using it, you get a {REFERRAL_BONUS_PER_REFERRAL_PERCENT}% bonus on your trade-in,
-                up to {REFERRAL_BONUS_MAX_PERCENT}%.
+                using it, you get a {referralProgram.per_referral_percent}% bonus on your trade-in,
+                up to {referralProgram.max_percent}%.
               </p>
               <div className="flex flex-wrap items-center gap-2">
                 <code className="max-w-full flex-1 truncate rounded-md bg-white px-3 py-2 text-xs text-portal-ink">
@@ -145,8 +146,8 @@ export default function PreRegistrationForm({
         <p className="text-xs leading-relaxed text-[#3a6650]">
           Once you register, you&apos;ll get your own unique link to share with friends and
           teammates. For every friend who pre-registers using it, you earn a{" "}
-          {REFERRAL_BONUS_PER_REFERRAL_PERCENT}% bonus on your trade-in — up to{" "}
-          {REFERRAL_BONUS_MAX_PERCENT}%.
+          {referralProgram.per_referral_percent}% bonus on your trade-in — up to{" "}
+          {referralProgram.max_percent}%.
         </p>
       </div>
 

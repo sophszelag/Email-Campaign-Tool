@@ -21,7 +21,11 @@ export default async function ConfirmationEmailSettingsPage({
   if (!region) notFound();
 
   const boundUpdate = updateConfirmationEmailSettings.bind(null, region.id);
-  const previewHtml = renderConfirmationEmailHtml(region.confirmation_email);
+  const previewHtml = renderConfirmationEmailHtml(
+    region.confirmation_email,
+    undefined,
+    region.referral_program
+  );
 
   return (
     <AppShell userEmail={session.user!.email!} title="Settings" subtitle={region.name}>

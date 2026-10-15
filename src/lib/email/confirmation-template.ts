@@ -1,5 +1,7 @@
 import { renderConfirmationEmail, type ConfirmationEmailContent } from "./templates/confirmation";
 import { SAMPLE_MERGE_DATA, type ReminderEmailMergeData } from "./templates/shared";
+import { defaultReferralProgramSettings } from "@/lib/referral-program-defaults";
+import type { ReferralProgramSettings } from "@/types";
 
 export type { ConfirmationEmailContent, ReminderEmailMergeData };
 export { SAMPLE_MERGE_DATA };
@@ -13,7 +15,8 @@ export { SAMPLE_MERGE_DATA };
  */
 export function renderConfirmationEmailHtml(
   content: ConfirmationEmailContent,
-  data: ReminderEmailMergeData = SAMPLE_MERGE_DATA
+  data: ReminderEmailMergeData = SAMPLE_MERGE_DATA,
+  referralProgram: ReferralProgramSettings = defaultReferralProgramSettings()
 ): string {
-  return renderConfirmationEmail(content, data);
+  return renderConfirmationEmail(content, data, referralProgram);
 }

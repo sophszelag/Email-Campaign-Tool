@@ -20,6 +20,7 @@ export const REMINDER_EMAIL_MERGE_FIELDS: { field: string; description: string }
 
 export function defaultReminderEmailSettings(): ReminderEmailSettings {
   return {
+    template_id: "classic",
     subject: "We're heading to {{event_venue}} soon!",
     headline: "We'll be near you soon",
     intro:
