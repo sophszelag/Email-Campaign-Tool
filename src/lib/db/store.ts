@@ -3,6 +3,7 @@ import type { PreRegistration, Region, ReminderSignup, TradeInEvent } from "@/ty
 import { emptyFormCustomization } from "@/types";
 import { defaultReminderEmailSettings } from "@/lib/reminder-email-defaults";
 import { defaultConfirmationEmailSettings } from "@/lib/confirmation-email-defaults";
+import { defaultSignupConfirmationEmailSettings } from "@/lib/signup-confirmation-email-defaults";
 import { defaultReferralProgramSettings } from "@/lib/referral-program-defaults";
 
 /**
@@ -49,6 +50,7 @@ const SEED_REGIONS: Region[] = [
     preregister_form: emptyFormCustomization(),
     reminder_email: defaultReminderEmailSettings(),
     confirmation_email: defaultConfirmationEmailSettings(),
+    signup_confirmation_email: defaultSignupConfirmationEmailSettings(),
     referral_program: defaultReferralProgramSettings(),
     created_at: new Date().toISOString(),
   },

@@ -51,6 +51,17 @@ export type ConfirmationEmailSettings = {
   closing: string;
 };
 
+// A region's reminder signup confirmation email: sent immediately after
+// someone fills out the public reminder signup form (not tied to any
+// specific event yet — just confirms what they submitted and that
+// they're on the list).
+export type SignupConfirmationEmailSettings = {
+  subject: string;
+  headline: string;
+  intro: string;
+  closing: string;
+};
+
 // How much of a trade-in bonus a pre-registrant earns per friend who signs
 // up with their referral link, capped at max_percent.
 export type ReferralProgramSettings = {
@@ -70,6 +81,7 @@ export type Region = {
   preregister_form: FormCustomization;
   reminder_email: ReminderEmailSettings;
   confirmation_email: ConfirmationEmailSettings;
+  signup_confirmation_email: SignupConfirmationEmailSettings;
   referral_program: ReferralProgramSettings;
   created_at: string;
 };

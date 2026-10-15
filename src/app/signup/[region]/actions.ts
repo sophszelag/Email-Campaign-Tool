@@ -88,5 +88,9 @@ export async function submitReminderSignup(formData: FormData): Promise<SignupRe
     created_at: new Date().toISOString(),
   });
 
-  return { ok: true, message: "You're signed up! We'll email you when we're heading your way." };
+  return {
+    ok: true,
+    message:
+      "You're signed up! Check your email for a summary of what you submitted, and we'll reach out again once we're heading your way.",
+  };
 }

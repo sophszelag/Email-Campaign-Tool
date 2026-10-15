@@ -54,6 +54,24 @@ export async function updateConfirmationEmailSettings(regionId: string, formData
   revalidatePath(`/settings/${region.slug}/confirmation`);
 }
 
+export async function updateSignupConfirmationEmailSettings(regionId: string, formData: FormData) {
+  await requireSession();
+  const region = store.regions.find((r) => r.id === regionId);
+  if (!region) return;
+
+  const subject = (formData.get("subject") as string | null)?.trim();
+  const headline = (formData.get("headline") as string | null)?.trim();
+  const intro = (formData.get("intro") as string | null)?.trim();
+  const closing = (formData.get("closing") as string | null)?.trim();
+
+  if (subject) region.signup_confirmation_email.subject = subject;
+  if (headline) region.signup_confirmation_email.headline = headline;
+  if (intro) region.signup_confirmation_email.intro = intro;
+  if (closing) region.signup_confirmation_email.closing = closing;
+
+  revalidatePath(`/settings/${region.slug}/signup-confirmation`);
+}
+
 export async function updateReferralProgramSettings(regionId: string, formData: FormData) {
   await requireSession();
   const region = store.regions.find((r) => r.id === regionId);

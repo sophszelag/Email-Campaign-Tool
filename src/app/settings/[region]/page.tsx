@@ -33,6 +33,18 @@ export default async function RegionSettingsIndexPage({
       </div>
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Link
+          href={`/settings/${region.slug}/signup-confirmation`}
+          className="rounded-[10px] border border-t-[4px] border-t-pastel-green-500 bg-white p-5 shadow-sm hover:border-turf-green-500"
+        >
+          <div className="mb-2 text-2xl">📨</div>
+          <div className="mb-1 font-bold text-turf-green-500">Reminder Signup Confirmation Email</div>
+          <p className="text-[13px] text-slate-green-500">
+            Sent immediately after someone fills out the reminder signup form — summarizes what
+            they submitted.
+          </p>
+        </Link>
+
+        <Link
           href={`/settings/${region.slug}/reminder`}
           className="rounded-[10px] border border-t-[4px] border-t-green-500 bg-white p-5 shadow-sm hover:border-green-500"
         >
